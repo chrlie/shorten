@@ -1,4 +1,4 @@
-# shortener
+# shorten
 A Python library for generating short URLs.
 
 ## The basics
