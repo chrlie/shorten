@@ -1,20 +1,33 @@
-__all__ = ['MemoryKeystore']
+__all__ = ['MemoryKeystore', 'RedisKeystore']
+
+try:
+   import gevent.coros
+   __gevent__ = True
+except ImportError:
+   __gevent__ = False
+
+def default_formatter(key):
+   return key
 
 class MemoryKeystore(object):
-   def __init__(self, keygen=None):
+   def __init__(self, keygen, formatter=None):
       self._data = {}
-      self._keygen = keygen
+      self._keygen = keygen.key_generator()
+      self._formatter = formatter or default_formatter
 
-   def insert(self, obj):
+   def insert(self, data=None):
       """
       Insert an object into the keystore and returns the key used.
       """
-      key = self._keygen.next()
+      key = self._formatter(self._keygen.next())
       if key in self._data:
-         raise KeyError('key has been used')
+         raise KeyError('key has been assigned')
  
-      self._data[key] = obj
+      self._data[key] = data
       return key
+
+   def __setitem__(self, key, item):
+      self._data[key] = item
 
    def __getitem__(self, key):
       return self._data[key]
@@ -25,14 +38,34 @@ class MemoryKeystore(object):
    def __len__(self):
       return len(self._data)
 
-   def set_keygen(self, keygen):
-      if self._keygen is None:
-         self._keygen = iter(keygen)
-      else:
-         raise ValueError('keygen has already been set')
+class RedisKeystore(object):
 
-   def get_keygen(self):
-      return self._keygen
+   DEFAULT_COUNTER_KEY = 'shorten:counter'
 
-   # The class used to generate keys
-   keygen = property(get_keygen, set_keygen)
+   def __init__(self, keygen, connection, counter_key=None, formatter=None):
+      self._redis = connection
+      self._keygen = keygen.key_generator(self._incrementer)
+      self._counter_key = counter_key or self.DEFAULT_COUNTER_KEY
+      self._formatter = formatter or default_formatter
+
+   def _incrementer(self, start, total=None):
+      while True:         
+         val = self._redis.incr(self._counter_key) + start - 1
+         yield val
+
+   def clear_counter(self):
+      self._redis.delete(self._counter_key)
+
+   def insert(self, data=None):
+      # We're okay to increment and set in two atomic steps, since
+      # the counter is never decremented   
+      key = self._formatter(self._keygen.next())
+      if not self._redis.setnx(key, data):
+         raise KeyError('key has been assigned')
+      return key
+
+   def __setitem__(self, key, val):
+      self._redis.set(key, val)
+      
+   def __getitem__(self, key):
+      return self._redis.get(key)

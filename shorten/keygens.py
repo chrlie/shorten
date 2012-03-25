@@ -1,4 +1,10 @@
-__all__ = ['SequentialKeygen']
+__all__ = ['Keygen', 'incrementer']
+
+try:
+   import gevent.coros
+   __gevent__ = True
+except ImportError:
+   __gevent__ = False
 
 DEFAULT_ALPHABET = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
@@ -24,25 +30,59 @@ def bx_decode(string, alphabet, mapping=None):
    except KeyError, e:
       raise ValueError("invalid literal for bx_decode with base %i: '%s'" % (b, string))
 
-class SequentialKeygen(object):
-   def __init__(self, min_length=4, alphabet=None):     
+def incrementer(start, total=None):
+   if __gevent__:
+      lock = gevent.coros.Semaphore()
+   else:
+      lock = None
+
+   c = start
+
+   # Loop manually because xrange overflows with large numbers
+   while True:
+      if lock is not None:
+         lock.acquire()
+
+      if total is not None and c >= start + total:
+         break
+      val = c
+      c += 1
+
+      if lock is not None:
+         lock.release()
+
+      yield val
+
+class Keygen(object):
+   def __init__(self, min_length=4, alphabet=None, start=None, total=None):     
       self._alphabet = alphabet or DEFAULT_ALPHABET      
 
       if min_length <= 0:
          min_length = 0
 
-      self._start = len(self._alphabet) ** (min_length-1)
+      if min_length is not None and start is not None:
+         raise Exception("only one of 'min_length' or 'start' can be set")
+
+      if start is None:
+         self._start = len(self._alphabet) ** (min_length-1)
+      else:
+         self._start = start
+
+      self._total = total
 
    def __iter__(self):
-      return self.key_generator(self._start)
+      return self.key_generator()
 
-   def key_generator(self, start, total=None):
-      c = start
+   def key_generator(self, key_incrementer=None):
+      key_incrementer = key_incrementer or incrementer
+      for key in key_incrementer(self._start, self._total):
+         yield bx_encode(key, self._alphabet)
 
-      # Loop manually because xrange overflows with large numbers
-      while True:
-         if total is not None and c >= start + total:
-            break
+   def get_start(self):
+      return self._start
 
-         yield bx_encode(c, self._alphabet)
-         c += 1
+   def get_total(self):
+      return self._total
+
+   start = property(get_start)
+   total = property(get_total)
