@@ -15,7 +15,9 @@ For example, an in-memory store can be created:
    animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']   
 
    # Create an in-memory keystore with a minimum key length of 4.
-   mem_shortener = shortener('memory', min_length=4)
+   mem_shortener = shortener(
+      'memory', 
+      min_length=4)
 
    # Request several keys at once.
    jobs = [gevent.spawn(mem_shortener.insert, animal) for animal in animals]
@@ -34,7 +36,10 @@ and a Redis-backed keystore as well!
    animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']   
 
    r = redis.Redis()
-   redis_shortener = shortener('redis', min_length=4, connection=r)
+   redis_shortener = shortener(
+      'redis', 
+      min_length=4, 
+      connection=r)
    
    # ['2111', '2112', '2113', '2114', '2115']
    print([redis_shortener.insert(animal) for animal in animals])
@@ -88,6 +93,7 @@ Formatters can be used to return a modified version of the key before it is pass
          formatter=formatter, 
          counter_key=counter_key)
    
-   # ['short.ur:key:2111', 'short.ur:key:2112', 'short.ur:key:2113', 'short.ur:key:2114', 'short.ur:key:2115']
+   # ['short.ur:key:2111', 'short.ur:key:2112', 'short.ur:key:2113', 
+   #  'short.ur:key:2114', 'short.ur:key:2115']
    print([redis_shortener.insert(animal) for animal in animals])
 ```
