@@ -1,5 +1,8 @@
 """
 Create your own little shortening API.
+
+For example:
+   gunicorn -w 4 example:app
 """
 
 import re
