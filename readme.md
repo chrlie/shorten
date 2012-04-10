@@ -59,7 +59,7 @@ Keystores can be created explicitly:
    keygen = Keygen(alphabet=alphabet)
    shortener = MemoryKeystore(keygen)
 
-   animals = ['aadrvark', 'bonobo', 'caiman', 'degu', 'elk']
+   animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']
 
    # ['aaaa', 'aaab', 'aaac', 'aaad', 'aaae']
    print([shortener.insert(animal) for animal in animals])
