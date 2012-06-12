@@ -1,7 +1,8 @@
 import keygens
 import keystores
 
-__all__ = ['keygens', 'shortener', 'keystores']
+__version__ = 0.1
+__all__ = ['keygens', 'shortener', 'keystores', '__version__']
 
 def shortener(name, min_length=4, **kwargs):
    """
