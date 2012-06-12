@@ -69,3 +69,11 @@ class RedisKeystore(object):
       
    def __getitem__(self, key):
       return self._redis.get(key)
+
+   def get_redis(self):
+      return self._redis
+
+   def set_redis(self, v):
+      self._redis = v
+
+   property(get_redis, set_redis)      
