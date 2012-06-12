@@ -106,5 +106,6 @@ Formatters can be used to return a modified version of the key before it is pass
 
 ## Upcoming
 
+* Tests!
 * Flask middleware/routes
 * MongoDB and SQLAlchemy support
