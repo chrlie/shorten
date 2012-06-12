@@ -68,7 +68,10 @@ class RedisKeystore(object):
       self._redis.set(key, val)
       
    def __getitem__(self, key):
-      return self._redis.get(key)
+      ret = self._redis.get(key)
+      if ret is None:
+         raise KeyError(key)
+      return ret
 
    def get_redis(self):
       return self._redis
