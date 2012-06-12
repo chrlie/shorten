@@ -1,6 +1,12 @@
 # shorten
 A Python library for generating short URLs.
 
+## Installation
+
+Install with pip: `pip install shorten`
+
+If you want to run the tests, ensure `nose` is installed with `pip install nose`.
+
 ## The basics
 
 Generate keys, store them. Keystores are greenlet-safe and compatible with
@@ -97,3 +103,8 @@ Formatters can be used to return a modified version of the key before it is pass
    #  'short.ur:key:2114', 'short.ur:key:2115']
    print([redis_shortener.insert(animal) for animal in animals])
 ```
+
+## Upcoming
+
+* Flask middleware/routes
+* MongoDB and SQLAlchemy support
