@@ -33,12 +33,15 @@ setup(
    license = 'MIT License',
 
    long_description = """\
-Create your own URL-shortening functionality. Gevent-safe, so you can use it
+Create your own URL-shortening functionality. It's gevent-safe, so you can use it
 with Gunicorn and Flask/Django.
 
 For example, you can create your own little shortening API:
 
 ::
+
+  # For example, run as:
+  # gunicorn -w 4 example:app
 
   import re
   from redis import Redis
@@ -54,11 +57,17 @@ For example, you can create your own little shortening API:
   def is_url(string):
      return re.match('http(s){0,1}://.+\..+', string, re.I) is not None
 
-  def formatter(key):
-     return '{0}:key:{1}'.format(app_name, key)
+  def to_short_token(key):
+     return key.split(to_short_key(''), 1)[1]
+
+  def to_short_key(token):
+     return '{0}:key:{1}'.format(app_name, token)
 
   counter_key = '{0}:counter'.format(app_name)
-  shortener = shortener('redis', connection=redis, counter_key=counter_key)
+
+  shortener = shortener('redis', redis=redis, 
+                                 counter_key=counter_key, 
+                                 formatter=to_short_key)
 
   @app.route('/')
   def shorten():
@@ -67,14 +76,16 @@ For example, you can create your own little shortening API:
         if not is_url(url):
            return jsonify({'error' : 'not a valid url'})
         else:
-           return jsonify({'short' : url_for('bounce', url=shortener.insert(url))})
+           token = to_short_token(shortener.insert(url))
+           return jsonify({'short' : url_for('bounce', token=token)})
      except KeyError, e:
         return jsonify({'error' : 'no url to shorten'})
 
-  @app.route('/<url>')
-  def bounce(url):
+  @app.route('/<token>')
+  def bounce(token):
      try:
-        return redirect(iri_to_uri(shortener[url]))
+        token = to_short_key(token)
+        return redirect(iri_to_uri(shortener[token]))
      except KeyError:
         return jsonify({'error' : 'no short url found'})
         
