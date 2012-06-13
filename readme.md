@@ -45,7 +45,7 @@ and a Redis-backed keystore as well!
    redis_shortener = shortener(
       'redis', 
       min_length=4, 
-      connection=r)
+      redis=r)
    
    # ['2111', '2112', '2113', '2114', '2115']
    print([redis_shortener.insert(animal) for animal in animals])
@@ -57,17 +57,19 @@ Keystores can be created explicitly:
 
 ```python
    from shorten.keystores import MemoryKeystore
-   from shorten.keygens import Keygen
+   from shorten.keygens import MemoryKeygen
 
-   # Use an alternative alphabet with no similar-looking letters.
-   alphabet = 'abcdefghijklmnopqrstuvwxyz23456789ABCDEFGHJKLMNPQRSTUVWXYZ'
+   # Use an alternative alphabet with faces
+   alphabet = [
+    ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o', u'ಠ_ಠ',
+   ]
 
-   keygen = Keygen(alphabet=alphabet)
+   keygen = MemoryKeygen(alphabet=alphabet)
    shortener = MemoryKeystore(keygen)
 
    animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']
 
-   # ['aaaa', 'aaab', 'aaac', 'aaad', 'aaae']
+   # [':(:):):)', ':(:):):(', ':(:):);)', ':(:):);(', ':(:):)>:)']
    print([shortener.insert(animal) for animal in animals])
 ```
 
@@ -82,7 +84,7 @@ Formatters can be used to return a modified version of the key before it is pass
    # The redis key used to increment the current counter
    counter_key = '{0}:counter'.format(app_name)
 
-   # A redis connection
+   # A redis redis
    redis_con = redis.Redis()
 
    # Namespace the key to avoid junking up redis
@@ -95,7 +97,7 @@ Formatters can be used to return a modified version of the key before it is pass
    redis_shortener = shortener(
          'redis', 
          min_length=4, 
-         connection=redis_con, 
+         redis=redis_con, 
          formatter=formatter, 
          counter_key=counter_key)
    
@@ -106,6 +108,5 @@ Formatters can be used to return a modified version of the key before it is pass
 
 ## Upcoming
 
-* Tests!
 * Flask middleware/routes
 * MongoDB and SQLAlchemy support

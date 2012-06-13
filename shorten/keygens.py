@@ -1,4 +1,4 @@
-__all__ = ['Keygen', 'incrementer']
+__all__ = ['Keygen', 'MemoryKeygen', 'RedisKeygen']
 
 try:
    import gevent.coros
@@ -30,59 +30,77 @@ def bx_decode(string, alphabet, mapping=None):
    except KeyError, e:
       raise ValueError("invalid literal for bx_decode with base %i: '%s'" % (b, string))
 
-def incrementer(start, total=None):
-   if __gevent__:
-      lock = gevent.coros.Semaphore()
-   else:
-      lock = None
-
-   c = start
-
-   # Loop manually because xrange overflows with large numbers
-   while True:
-      if lock is not None:
-         lock.acquire()
-
-      if total is not None and c >= start + total:
-         break
-      val = c
-      c += 1
-
-      if lock is not None:
-         lock.release()
-
-      yield val
-
 class Keygen(object):
-   def __init__(self, min_length=4, alphabet=None, start=None, total=None):     
-      self._alphabet = alphabet or DEFAULT_ALPHABET      
+   """\
+   Generates keys.
+   """
 
-      if min_length <= 0:
-         min_length = 0
-
+   def __init__(self, alphabet=None, min_length=4, start=None, total=None):
+      self._alphabet = alphabet or DEFAULT_ALPHABET
+      self._total = total     
+      
       if min_length is not None and start is not None:
          raise Exception("only one of 'min_length' or 'start' can be set")
+
+      min_length = max(0, min_length)
 
       if start is None:
          self._start = len(self._alphabet) ** (min_length-1)
       else:
          self._start = start
 
-      self._total = total
+   def map(self, n):
+      return bx_encode(n, self._alphabet)
 
-   def __iter__(self):
-      return self.key_generator()
+   alphabet = property(lambda self: self._alphabet)
+   start = property(lambda self: self._start)
 
-   def key_generator(self, key_incrementer=None):
-      key_incrementer = key_incrementer or incrementer
-      for key in key_incrementer(self._start, self._total):
-         yield bx_encode(key, self._alphabet)
+class MemoryKeygen(Keygen):
+  """\
+  Generates keys in-memory. Gevent-safe, but not threadsafe.
+  """
+  def __init__(self, *args, **kwargs):
+    super(MemoryKeygen, self).__init__(*args, **kwargs)
+    self._current = self._start   
+    if __gevent__:
+      self._lock = gevent.coros.Semaphore()
+    else:
+      self._lock = None                            
 
-   def get_start(self):
-      return self._start
+  def peek(self):    
+    return self.map(self._current)
 
-   def get_total(self):
-      return self._total
+  def next(self):
+    if self._lock is not None:
+      self._lock.acquire()
+  
+    if self._total is not None and c >= self._start + self._total:
+      raise StopIteration()
+    val = self._current
+    self._current += 1
 
-   start = property(get_start)
-   total = property(get_total)
+    if self._lock is not None:
+      self._lock.release()
+
+    return self.map(val)
+
+class RedisKeygen(Keygen):
+  """\
+  Generates keys in-memory but increments them in redis. Gevent-safe but
+  not threadsafe.
+  """
+  
+  DEFAULT_COUNTER_KEY = 'shorten:counter'
+  
+  def __init__(self, *args, **kwargs):
+    self._counter_key = kwargs.pop('counter_key', self.DEFAULT_COUNTER_KEY)
+    self._redis = kwargs.pop('redis')    
+    super(RedisKeygen, self).__init__(*args, **kwargs)
+  
+  def peek(self, pipe=None):    
+    pipe = pipe or self._redis
+    return self.map(pipe.get(self._counter_key))
+
+  def next(self, pipe=None):      
+    pipe = pipe or self._redis
+    return self.map(pipe.incr(self._counter_key) + self._start - 1)
