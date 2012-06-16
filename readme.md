@@ -1,5 +1,7 @@
 # shorten
+
 A Python library for generating short URLs.
+It's gevent-safe, so you can use it with Gunicorn (and consequently Flask, Django and Pyramid).
 
 ## Installation
 
@@ -9,68 +11,81 @@ If you want to run the tests, ensure `nose` is installed with `pip install nose`
 
 ## The basics
 
-Generate keys, store them. Keystores are greenlet-safe and compatible with
-`gevent` and `gunicorn`.
-
-For example, an in-memory store can be created:
-
-```python   
-   import gevent
-   from shorten import shortener   
-
-   animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']   
-
-   # Create an in-memory keystore with a minimum key length of 4.
-   mem_shortener = shortener(
-      'memory', 
-      min_length=4)
-
-   # Request several keys at once.
-   jobs = [gevent.spawn(mem_shortener.insert, animal) for animal in animals]
-   gevent.joinall(jobs, timeout=2)
-
-   # ['2112', '2111', '2114', '2113', '2115']
-   print([job.value for job in jobs])
-```
-
-and a Redis-backed keystore as well!
-
-```python   
-   import redis
-   from shorten import shortener
-
-   animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']   
-
-   r = redis.Redis()
-   redis_shortener = shortener(
-      'redis', 
-      min_length=4, 
-      redis=r)
-   
-   # ['2111', '2112', '2113', '2114', '2115']
-   print([redis_shortener.insert(animal) for animal in animals])
-```
-
-## Advanced topics
-
-Keystores can be created explicitly:
+Make a shortener:
 
 ```python
-   from shorten.keystores import MemoryKeystore
-   from shorten.keygens import MemoryKeygen
+   import shorten
+   import redis
+   
+   shortener = shorten.shortener('redis', redis=redis.Redis())
+```
+
+Map a short key to a long value:
+
+```python
+   # '2111'
+   key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
+```   
+
+Map multiple keys and values from greenlets:
+
+```python
+   import gevent   
+
+   values = [
+    'aardvark', 
+    'bonobo', 
+    'caiman', 
+    'degu', 
+    'elk',
+   ]
+      
+   jobs = [gevent.spawn(shortener.insert, v) for v in values]   
+   keys = map(lambda j: j.value, gevent.joinall(jobs, timeout=2))
+   
+   # ['2111', '2112', '2114', '2113', '2115']
+   print(keys)
+```  
+
+If you wish to store the keys with some sort of prefix, pass in a `formatter` function when a `KeyStore` is created:
+
+```python
+   import shorten
+   import redis
+   
+   def to_key_format(token):
+      return 'my:namespace:key:{0}'.format(token)
+   
+   shortener = shorten.shortener('redis', redis=redis.Redis(), formatter=to_key_format)
+   
+   # 'my:namespace:key:2111'
+   key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
+```      
+
+Custom alphabets of symbols (any 0-index based iterable) can be passed to the `shortener` function too:
+
+```python
+   import shorten
 
    # Use an alternative alphabet with faces
    alphabet = [
-    ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o', u'ಠ_ಠ',
+    ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o', u'?_?',
    ]
 
-   keygen = MemoryKeygen(alphabet=alphabet)
-   shortener = MemoryKeystore(keygen)
+   shortener = shorten.shortener('memory', alphabet=alphabet)
 
-   animals = ['aardvark', 'bonobo', 'caiman', 'degu', 'elk']
-
+   values = [
+    'aardvark', 
+    'bonobo', 
+    'caiman', 
+    'degu', 
+    'elk',
+   ]
+   
+   keys = map(shortener.insert, values)
+   
    # [':(:):):)', ':(:):):(', ':(:):);)', ':(:):);(', ':(:):)>:)']
-   print([shortener.insert(animal) for animal in animals])
+   print(keys)
 ```
 
 Formatters can be used to return a modified version of the key before it is passed to the keystore.
@@ -105,8 +120,3 @@ Formatters can be used to return a modified version of the key before it is pass
    #  'short.ur:key:2114', 'short.ur:key:2115']
    print([redis_shortener.insert(animal) for animal in animals])
 ```
-
-## Upcoming
-
-* Flask middleware/routes
-* MongoDB and SQLAlchemy support
