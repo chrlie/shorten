@@ -1,6 +1,7 @@
 # shorten
 
 A Python library for generating short URLs.
+
 It's gevent-safe, so you can use it with Gunicorn (and consequently Flask, Django and Pyramid).
 
 ## Installation
