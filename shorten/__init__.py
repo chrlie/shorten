@@ -1,33 +1,38 @@
 import keygens
 import keystores
 
-__version__ = '0.2.0'
-__all__ = ['keygens', 'shortener', 'keystores', '__version__']
+__version__ = '0.2.1'
+__all__ = ['keygens', 'shortener', 'keystores', '__version__', 'shorteners']
 
-def shortener(name, min_length=4, start=None, total=None, alphabet=None, **kwargs):
-   """
-   Simplifies creation of keystores.
+shorteners = ('memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
 
-      'redis'     creates a redis-backed keystore
-      'memory'    creates a memory-backed keystore
-   """
+def shortener(name, min_length=4, start=None, alphabet=None, **kwargs):
+  """
+  Simplifies creation of keystores.
+  
+    'redis'     creates a redis-backed keystore
+    'memory'    creates a memory-backed keystore
+  """
 
-   if name == 'redis':   
-      counter_key = kwargs.pop('counter_key', None)
-      keygen = keygens.RedisKeygen(min_length=min_length, 
-                                   start=start, 
-                                   total=total, 
-                                   alphabet=alphabet, 
-                                   counter_key=counter_key, 
-                                   redis=kwargs['redis'])
-      return keystores.RedisKeystore(keygen, **kwargs)
-      
-   elif name == 'memory':      
-      keygen = keygens.MemoryKeygen(min_length=min_length, 
-                                    start=start, 
-                                    total=total, 
-                                    alphabet=alphabet)   
-      return keystores.MemoryKeystore(keygen, **kwargs)
-      
-   else:
-      raise Exception("valid shorteners are 'redis' or 'memory'")
+  if name == 'memory':      
+    keygen = keygens.MemoryKeygen(min_length=min_length, 
+                                  start=start, 
+                                  alphabet=alphabet)   
+    return keystores.MemoryKeystore(keygen, **kwargs)      
+  elif name == 'mongo':
+    raise NotImplemented()    
+  elif name == 'redis':   
+    counter_key = kwargs.pop('counter_key', None)
+    redis = kwargs['redis']      
+    keygen = keygens.RedisKeygen(min_length=min_length, 
+                                 start=start, 
+                                 alphabet=alphabet, 
+                                 counter_key=counter_key, 
+                                 redis=redis)
+    return keystores.RedisKeystore(keygen, **kwargs)
+  elif name == 'redis-bucket':
+    raise NotImplemented()
+  elif name == 'sqlalchemy':
+    raise NotImplemented()      
+  else:
+    raise Exception("valid shorteners are %s" % ', '.join(shorteners))

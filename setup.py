@@ -23,74 +23,120 @@ setup(
 
    url = 'https://github.com/tyrannosaur/shorten',
    download_url = 'https://github.com/tyrannosaur/shorten/zipball/master',
-   keywords = ['redis','internet'],
+   keywords = ['redis','internet','url'],
    classifiers = [
       'Programming Language :: Python',
       'License :: OSI Approved :: MIT License',
-      'Topic :: Internet :: WWW/HTTP :: Dynamic Content :: Page Counters',
+      'Topic :: Internet :: WWW/HTTP',
    ],
 
    license = 'MIT License',
 
    long_description = """\
-Create your own URL-shortening functionality. It's gevent-safe, so you can use it
-with Gunicorn and Flask/Django.
+shorten
+=======
 
-For example, you can create your own little shortening API:
+A Python library for generating short URLs.
+
+It’s gevent-safe, so you can use it with Gunicorn (and consequently
+Flask, Django and Pyramid). Currently, it is neither threadsafe nor
+multiprocess safe.
+
+Installation
+------------
+
+Install with pip: ``pip install shorten``
+
+If you want to run the tests, ensure ``nose``, ``redis`` and ``gevent``
+are installed with ``pip install nose redis gevent``, then:
 
 ::
 
-  # For example, run as:
-  # gunicorn -w 4 example:app
+    nosetests tests.py -v
 
-  import re
-  from redis import Redis
-  from flask import Flask, request, redirect, url_for, jsonify
-  from werkzeug import iri_to_uri
-  from shorten import shortener
+The basics
+----------
 
-  app = Flask(__name__)
-  app_name = 'short.ur'
+Make a shortener:
 
-  redis = Redis()
+::
 
-  def is_url(string):
-     return re.match('http(s){0,1}://.+\..+', string, re.I) is not None
+    import shorten
+    import redis
 
-  def to_short_token(key):
-     return key.split(to_short_key(''), 1)[1]
+    shortener = shorten.shortener('redis', redis=redis.Redis())
 
-  def to_short_key(token):
-     return '{0}:key:{1}'.format(app_name, token)
+Map a short key to a long value:
 
-  counter_key = '{0}:counter'.format(app_name)
+::
 
-  shortener = shortener('redis', redis=redis, 
-                                 counter_key=counter_key, 
-                                 formatter=to_short_key)
+    # '2111'
+    key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
 
-  @app.route('/')
-  def shorten():
-     try:
-        url = request.args['u'].strip()
-        if not is_url(url):
-           return jsonify({'error' : 'not a valid url'})
-        else:
-           token = to_short_token(shortener.insert(url))
-           return jsonify({'short' : url_for('bounce', token=token)})
-     except KeyError, e:
-        return jsonify({'error' : 'no url to shorten'})
+Map multiple keys and values from greenlets:
 
-  @app.route('/<token>')
-  def bounce(token):
-     try:
-        token = to_short_key(token)
-        return redirect(iri_to_uri(shortener[token]))
-     except KeyError:
-        return jsonify({'error' : 'no short url found'})
-        
-  if __name__ == '__main__':
-     app.run('0.0.0.0')
+::
+
+    import gevent   
+
+    values = [
+      'aardvark', 
+      'bonobo', 
+      'caiman', 
+      'degu', 
+      'elk',
+    ]
+      
+    jobs = [gevent.spawn(shortener.insert, v) for v in values]   
+    keys = map(lambda j: j.value, gevent.joinall(jobs, timeout=2))
+
+    # ['2111', '2112', '2114', '2113', '2115']
+    print(keys)
+
+If you wish to store the keys with some sort of prefix, pass in a
+``formatter`` function when a ``KeyStore`` is created:
+
+::
+
+    import shorten
+    import redis
+
+    def to_key_format(token):
+      return 'my:namespace:key:{0}'.format(token)
+
+    shortener = shorten.shortener('redis', redis=redis.Redis(), formatter=to_key_format)
+
+    # 'my:namespace:key:2111'
+    key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
+
+Custom alphabets of symbols (any 0-index based iterable) can be passed
+to the ``shortener`` function too:
+
+::
+
+    import shorten
+
+    # Use an alternative alphabet with faces
+    alphabet = [
+      ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o', u'?_?',
+    ]
+
+    shortener = shorten.shortener('memory', alphabet=alphabet)
+
+    values = [
+      'aardvark', 
+      'bonobo', 
+      'caiman', 
+      'degu', 
+      'elk',
+    ]
+
+    keys = map(shortener.insert, values)
+
+    # [':(:):):)', ':(:):):(', ':(:):);)', ':(:):);(', ':(:):)>:)']
+    print(keys)
+
+For a working example, see ``example.py``.
 """,
    **kw
 )     
