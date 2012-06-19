@@ -1,6 +1,14 @@
 import collections
+import operator
+import itertools
 
-__all__ = ['MemoryKeystore', 'RedisKeystore', 'RedisBucketKeystore', 'default_formatter']
+try:
+  import gevent.coros
+  __gevent__ = True
+except ImportError:
+  __gevent__ = False
+  
+__all__ = ['MemoryKeystore', 'RedisKeystore', 'default_formatter']
 
 def default_formatter(key):
   return key
@@ -26,11 +34,62 @@ class MemoryKeystore(Keystore):
   def __init__(self, *args, **kwargs):
     super(MemoryKeystore, self).__init__(*args, **kwargs)
     self._data = {}
+    self._revokation = {}
+    
+    if __gevent__:
+      self._lock = gevent.coros.Semaphore()
+    else:
+      self._lock = None      
+
+  def _acquire(self):
+    if self._lock is not None:
+      self._lock.acquire()  
+  
+  def _release(self):
+    if self._lock is not None:
+      self._lock.release()  
+
+  def insert_multi(self, *vals):
+    """\
+    Insert multiple values efficiently. Returns an iterator of keys, even if
+    only one value was provided.
+    """    
+    
+    length = len(vals)
+    keys = self._next(length)
+    kv = itertools.izip(keys, vals)
+    
+    for key, val in kv:
+      self._data[key] = val
+      
+    return iter(keys)
 
   def insert(self, val):
+    """\
+    Generates a new short key, inserts the value into memory and returns the key.
+    """
+        
     key = self._next()[0]
     self._data[key] = val
     return key
+
+  def insert_with_revoke(self, val, revoke_key):
+    self._acquire()
+    
+    if revoke_key in self._revokation:
+      raise KeyError('Revokation key already exists.')
+      
+    short_key = self.insert(val)
+    self._revokation[revoke_key] = short_key
+    
+    self._release()
+    
+    return short_key
+
+  def revoke(self, revoke_key):
+    short_key = self._revokation[revoke_key]
+    del self._data[short_key]
+    del self._revokation[revoke_key]
 
   def __setitem__(self, key, item):
     self._data[key] = item
@@ -43,7 +102,7 @@ class MemoryKeystore(Keystore):
 
   def __len__(self):
     return len(self._data)
-
+ 
 class RedisKeystore(Keystore):
   """\
   Stores formatted short keys and their values in Redis.
@@ -55,9 +114,10 @@ class RedisKeystore(Keystore):
 
   def insert_multi(self, *vals):
     """\
-    Insert multiple values efficiently. Returns a list of keys, even if
+    Insert multiple values efficiently. Returns an iterator of keys, even if
     only one value was provided.
     """    
+    
     length = len(vals)    
     keys = self._next(length)
     p = self._redis.pipeline()    
@@ -66,7 +126,7 @@ class RedisKeystore(Keystore):
       p.set(key, val)
       
     p.execute()
-    return keys
+    return iter(keys)
     
   def insert(self, val, pipe=None): 
     """\
@@ -107,24 +167,38 @@ class RedisKeystore(Keystore):
     
     p = self._redis.pipeline() if pipe is None else pipe
     
-    short_key = self.insert(val, pipe=p)
-    p.setnx(revoke_key, short_key)
-    
-    if pipe is None:
-      if p.execute()[0] == 0:
-        raise KeyError('Revokation key already exists.')
-    return short_key
+    try:
+      short_key = self.insert(val, pipe=p)
+      p.setnx(revoke_key, short_key)
+      
+      if pipe is None:
+        if p.execute()[0] == 0:
+          raise KeyError('Revokation key already exists.')
+      return short_key
+    finally:
+      if pipe is None:
+        p.reset()            
  
-  def revoke(self, revoke_key):
+  def revoke(self, revoke_key, pipe=None):
     """\
     Revokes a short key by deleting it and associated metadata from Redis.
     """
-
-    p = self._redis.pipeline() if pipe is None else pipe        
-    short_key = p.get(revoke_key)
-    p.multi()
-    p.delete(short_key, revoke_key)
-    p.execute()    
+    
+    p = self._redis.pipeline() if pipe is None else pipe   
+    
+    try:      
+      p.watch(revoke_key)
+      short_key = p.get(revoke_key)
+      p.multi()
+      p.delete(short_key, revoke_key)
+      
+      if pipe is None:
+        p.execute()    
+    except redis.WatchError:
+      raise
+    finally:
+      if pipe is None:
+        p.reset()
  
   def __setitem__(self, key, val):
     return self._redis.set(key, val)
@@ -140,4 +214,3 @@ class RedisKeystore(Keystore):
   
   def __len__(self):
     return NotImplemented()
-

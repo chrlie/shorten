@@ -1,10 +1,10 @@
-import keygens
-import keystores
+from . import keygens
+from . import keystores
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __all__ = ['keygens', 'shortener', 'keystores', '__version__', 'shorteners']
 
-shorteners = ('memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
+shorteners = ('memcache', 'memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
 
 def shortener(name, min_length=4, start=None, alphabet=None, **kwargs):
   """
@@ -14,7 +14,9 @@ def shortener(name, min_length=4, start=None, alphabet=None, **kwargs):
     'memory'    creates a memory-backed keystore
   """
 
-  if name == 'memory':      
+  if name == 'memcache':
+    raise NotImplemented()
+  elif name == 'memory':      
     keygen = keygens.MemoryKeygen(min_length=min_length, 
                                   start=start, 
                                   alphabet=alphabet)   
