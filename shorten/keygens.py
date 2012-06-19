@@ -38,7 +38,7 @@ def bx_decode(string, alphabet, mapping=None):
 
   try:
     return sum([b**i * mapping[d] for (i,d) in enumerate(reversed(string))])
-  except KeyError, e:
+  except KeyError as e:
     raise ValueError("invalid literal for bx_decode with base %i: '%s'" % (b, string))
 
 def largerange(start, stop, step=1):
