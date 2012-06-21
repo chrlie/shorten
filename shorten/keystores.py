@@ -77,7 +77,7 @@ class MemoryKeystore(Keystore):
     self._acquire()
     
     if revoke_key in self._revokation:
-      raise KeyError('Revokation key already exists.')
+      raise KeyError('Revokation key exists.')
       
     short_key = self.insert(val)
     self._revokation[revoke_key] = short_key
@@ -87,9 +87,19 @@ class MemoryKeystore(Keystore):
     return short_key
 
   def revoke(self, revoke_key):
-    short_key = self._revokation[revoke_key]
+    """\
+    Revokes (deletes) the short key associated with the given revokation key `revoke_key`.
+    If `revoke_key` does not exist, throws a KeyError. Otherwise returns True.
+    """
+
+    try:
+      short_key = self._revokation[revoke_key]
+    except KeyError:
+      raise KeyError('Revokation key does not exist.')
+
     del self._data[short_key]
     del self._revokation[revoke_key]
+    return True
 
   def __setitem__(self, key, item):
     self._data[key] = item
@@ -173,7 +183,7 @@ class RedisKeystore(Keystore):
       
       if pipe is None:
         if p.execute()[0] == 0:
-          raise KeyError('Revokation key already exists.')
+          raise KeyError('Revokation key exists.')
       return short_key
     finally:
       if pipe is None:
@@ -181,7 +191,10 @@ class RedisKeystore(Keystore):
  
   def revoke(self, revoke_key, pipe=None):
     """\
-    Revokes a short key by deleting it and associated metadata from Redis.
+    Revokes (deletes) the short key associated with the given revokation key `revoke_key`.
+    If `revoke_key` does not exist, throws a KeyError. Otherwise returns True.  
+
+    If a Redis pipeline is given, no value is returned.
     """
     
     p = self._redis.pipeline() if pipe is None else pipe   
@@ -193,7 +206,10 @@ class RedisKeystore(Keystore):
       p.delete(short_key, revoke_key)
       
       if pipe is None:
-        p.execute()    
+        if p.execute()[-1] == 0:
+          raise KeyError('Revokation key does not exist.')
+        else:
+          return True
     except redis.WatchError:
       raise
     finally:

@@ -1,7 +1,7 @@
 from . import keygens
 from . import keystores
 
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __all__ = ['keygens', 'shortener', 'keystores', '__version__', 'shorteners']
 
 shorteners = ('memcache', 'memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
