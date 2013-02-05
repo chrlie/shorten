@@ -1,14 +1,7 @@
 import operator
-
-try:
-  import gevent.coros
-  __gevent__ = True
-except ImportError:
-  __gevent__ = False
+from lock import Lock
 
 __all__ = ['Keygen', 'MemoryKeygen', 'RedisKeygen']
-
-DEFAULT_ALPHABET = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
 
 def bx_encode(n, alphabet):
   """\
@@ -59,13 +52,15 @@ def largerange(start, stop, step=1):
 
 class Keygen(object):
   """\
-  Generates keys with symbols from an ``alphabet``. 
+  Generates keys with symbols from an indexable ``alphabet``. 
   The keys may or may not be in lexographic order.``min_length`` or ``start`` can
   be specified to generate keys of a certain string length or larger.
   """
+
+  DEFAULT_ALPHABET = '1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'
   
-  def __init__(self, alphabet=None, min_length=4, start=None):
-    self._alphabet = alphabet or DEFAULT_ALPHABET
+  def __init__(self, alphabet=None, min_length=4, start=None):    
+    self._alphabet = alphabet or self.DEFAULT_ALPHABET
     
     if min_length is not None and start is not None:
       raise Exception("only one of 'min_length' or 'start' can be set")
@@ -77,10 +72,7 @@ class Keygen(object):
     else:
       self._start = start
 
-  def next(self):
-    raise NotImplemented()
-
-  def map(self, n):
+  def encode(self, n):
     return bx_encode(n, self._alphabet)
 
   alphabet = property(lambda self: self._alphabet)
@@ -90,69 +82,52 @@ class MemoryKeygen(Keygen):
   """\
   Generates keys in-memory.
   """
-  
-  def __init__(self, *args, **kwargs):
-    super(MemoryKeygen, self).__init__(*args, **kwargs)
-    self._current = self._start  
-    if __gevent__:
-      self._lock = gevent.coros.Semaphore()
-    else:
-      self._lock = None                   
-
-  def _acquire(self):
-    if self._lock is not None:
-      self._lock.acquire()  
-  
-  def _release(self):
-    if self._lock is not None:
-      self._lock.release()  
-
-  def _next_generator(self, start, total):  
-    for i in largerange(start, total):
-      yield self.map(i)
-
-  def next(self, num=1):
+ 
+  def __iter__(self):
     """\
     Increments the in-memory counter immediately and returns a new key.
     """
-    self._acquire()
-    current = self._current
-    self._current += num
-    
-    if num == 1:
-      self._release()
-      return [self.map(current)]
-    else:
-      self._release()    
-      return self._next_generator(current, current+num)      
+
+    lock = Lock()
+    current = self._start
+
+    while True:
+      try:
+        lock.acquire()    
+        yield self.encode(current)
+        current += 1
+
+      finally:
+        lock.release()
 
 class RedisKeygen(Keygen):
   """\
   Generates keys in-memory but increments them in Redis.
   """
   
-  DEFAULT_COUNTER_KEY = 'shorten:counter'
+  COUNTER_KEY = 'counter'
   
   def __init__(self, *args, **kwargs):
-    self._counter_key = kwargs.pop('counter_key', self.DEFAULT_COUNTER_KEY)
-    self._redis = kwargs.pop('redis')
+    self._counter_key = kwargs.pop('redis_counter_key', self.COUNTER_KEY)
+    self._redis = kwargs.pop('redis', None)
+
+    if self._redis is None:
+      raise Exception('A Redis object is required for the RedisKeygen.')
+
     super(RedisKeygen, self).__init__(*args, **kwargs)
 
-  def next(self, num=1):
+  def __iter__(self):
     """\
     Increments the global Redis counter immediately and returns a new key.
     """
     
-    ckey = self._counter_key
+    ckey = self.counter_key
     start = self._start
-    redis = self._redis
+   
+    while True:           
+      i = self._redis.incr(ckey) + start - 1      
+      yield self.encode(i)
     
-    if num == 1:
-      return [self.map(redis.incr(ckey) + start - 1)]
-    else:
-      with redis.pipeline() as pipe:
-        for i in largerange(0, num):
-          pipe.incr(ckey)
-        return [self.map(token + start - 1) for token in pipe.execute()]
-    
-  counter_key = property(lambda self: self._counter_key)
+  @property
+  def counter_key(self):
+    return self._counter_key

@@ -1,3 +1,4 @@
+*.sw[p-z]
 *.py[oc]
 venv/
 env/
