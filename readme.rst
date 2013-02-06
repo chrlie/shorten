@@ -67,7 +67,6 @@ Revokation is built in, so keys can revoked easily as well:
 
 .. code:: python
 
-
     from shorten import make_store
 
     store = make_store('memory')
@@ -88,7 +87,7 @@ Formatters
 ~~~~~~~~~~
 
 A ``Formatter`` is used to format the internal representation of a key
-or token. This is useful for Redis and traditional databases, which need
+or token. This is useful for Redis and SQL databases, which often need
 to prefix keys and columns in order to avoid clashes.
 
 Any class or mixin with ``format_token`` and ``format_key`` methods can
@@ -112,8 +111,13 @@ be used.
     formatter = RedisFormatter()
     store = make_store('redis', redis=redis.Redis(), redis_counter_key=formatter.counter, formatter=formatter)
 
-    # ('my:namespace:key:2111', 'my:namespace:key:2111')
+    # Note that the keys returned are *not* prefixed
+    # ('2111', '2111')
     key, token = store.insert('aardvark')
+
+    # But the keys in redis *are* prefixed
+    # 'aardvark' 
+    redis.Redis().get(formatter.format_key(key))
 
 Token generators
 ~~~~~~~~~~~~~~~~
@@ -136,7 +140,7 @@ the ``make_store`` function.
 
     # Use an alternative alphabet with faces
     alphabet = [
-      ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o',
+      ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':O', '><', '<<', '>>', '^^', 'O_o',
     ]
 
     store = make_store('memory', alphabet=alphabet)

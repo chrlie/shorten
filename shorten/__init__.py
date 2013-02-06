@@ -4,7 +4,7 @@ import store
 
 from formatter import Formatter
 
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 __all__ = ['__version__', 'key', 'token', 'store', 'make_store', 'stores', 'Formatter']
 
 stores = ('memcache', 'memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
@@ -48,14 +48,14 @@ def make_store(name, **kwargs):
   store_args = kwargs
 
   if name == 'memcache':
-    raise NotImplemented()
+    raise NotImplementedError()
 
   elif name == 'memory':      
     keygen = key.MemoryKeygen(**keygen_args)
     return store.MemoryStore(keygen, **store_args)      
 
   elif name == 'mongo':
-    raise NotImplemented()    
+    raise NotImplementedError()    
 
   elif name == 'redis':   
     keygen_args.update({
@@ -67,11 +67,12 @@ def make_store(name, **kwargs):
     return store.RedisStore(keygen, **store_args)
 
   elif name == 'redis-bucket':
-    raise NotImplemented()
+    raise NotImplementedError()
 
   elif name == 'sqlalchemy':
-    raise NotImplemented()      
+    raise NotImplementedError()      
 
   else:
-    raise Exception("valid stores are %s" % ', '.join(stores))
+    e = Exception("valid stores are %s" % ', '.join(stores))
+    raise e
 
