@@ -17,10 +17,10 @@ class Store(object):
    Stores keys, tokens and values.
    """
 
-   def __init__(self, keygen, formatter=None, revoker=None):
+   def __init__(self, keygen, formatter=None, token_generator=None):
       self._keyiter = iter(keygen)
       self._formatter = formatter or Formatter()
-      self._tokengen = revoker or TokenGenerator()
+      self._tokengen = token_generator or TokenGenerator()
 
    def next_key_token_pair(self, num=1):
       """\

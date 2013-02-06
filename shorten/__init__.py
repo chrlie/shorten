@@ -13,18 +13,30 @@ def make_store(name, **kwargs):
   """\
   Simplifies creation of stores by linking them with the appropriate keygens.
   
-  Valid stores are:
+  Valid stores names are:
 
-    'redis'     A redis-backed store.
-    'memory'    A memory-backed store.
+     `redis`       A redis-backed store.
 
-  `min_length`  The minimum key length, in characters.
+     `memory`      A memory-backed store.
 
-  `start`       The index to start counting from.
+  Keyword arguments are:
 
-  `alphabet`    The alphabet to use: any indexable object
-                can be used as an alphabet.
+     `min_length`       The minimum key length, in characters.
 
+     `start`            The starting index that the keygen counts from.
+
+     `alphabet`         The alphabet to use: any indexable object
+                        can be used as an alphabet.
+
+     `formatter`        An object used to format the internal key
+                        and token names. ``Formatter`` provides a
+                        default implementation, returning the key
+                        and token unmodified.
+
+     `token_generator`  An object used to generate revokation tokens.
+                        ``token.TokenGenerator`` provides a default
+                        implementatio, which returns the key as the
+                        revokation token.
   """
   
   keygen_args = {

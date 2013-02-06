@@ -16,26 +16,27 @@ nosetests tests.py -v
 
 ## The basics
 
-Make a shortener:
+Make a store, which includes a key generator, token generator and object for storing values:
 
 ```python
-import shorten
+from shorte import make_store
 import redis
 
-shortener = shorten.shortener('redis', redis=redis.Redis())
+store = make_store('redis', redis=redis.Redis())
 ```
 
-Map a short key to a long value:
+Map a short key to a long value. The short key and a revokation token are returned:
 
 ```python
-# '2111'
-key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
+# ('2111', '2111')
+key, token = store.insert('agitated aardvarks beg bonobos climbing caimans "dashing degu enjoy elk"')
 ```   
 
-Map multiple keys and values from greenlets:
+Map multiple values to keys and revokation tokens from greenlets:
 
 ```python
-import gevent   
+import gevent  
+from shorten import make_store
 
 values = [
   'aardvark', 
@@ -45,39 +46,82 @@ values = [
   'elk',
 ]
   
-jobs = [gevent.spawn(shortener.insert, v) for v in values]   
-keys = map(lambda j: j.value, gevent.joinall(jobs, timeout=2))
+store = make_store('memory')
 
-# ['2111', '2112', '2114', '2113', '2115']
-print(keys)
+jobs = [gevent.spawn(store.insert, v) for v in values]   
+pairs = map(lambda j: j.value, gevent.joinall(jobs, timeout=2))
+
+# [('2111' '2111'), ('2112' '2112'), ('2114' '2114'), ('2113', '2113'), ('2115', ('2115')]
+print(pairs)
 ```
 
-If you wish to store the keys with some sort of prefix, pass in a `formatter` function when a `KeyStore` is created:
+Revokation is built in, so keys can revoked easily as well:
+
+```python
+
+from shorten import make_store
+
+store = make_store('memory')
+
+# ('2111', '2111')
+key, token = store.insert('aardvark')
+
+# 'aardvark'
+store[key]
+
+# True
+store.revoke(token)
+
+# KeyError
+store[key]
+```
+
+### Formatters
+
+A ``Formatter`` is used to format the internal representation of a key or token. This is useful for Redis and traditional databases, which need to prefix keys and columns in order to avoid clashes.
+
+Any class or mixin with ``format_token`` and ``format_key`` methods can be used.
 
 ```python
 import shorten
 import redis
 
-def to_key_format(token):
-  return 'my:namespace:key:{0}'.format(token)
+class RedisFormatter(object):
 
-shortener = shorten.shortener('redis', redis=redis.Redis(), formatter=to_key_format)
+   counter = 'my:namespace:counter'
 
-# 'my:namespace:key:2111'
-key = shortener.insert('http://mitpress.mit.edu/sicp/full-text/book/book.html')
-```      
+   def format_key(self, key):
+      return 'my:namespace:key:{0}'.format(key)
 
-Custom alphabets of symbols (any 0-index based iterable) can be passed to the `shortener` function too:
+   def format_token(self, token)
+      return 'my:namespace:token:{0}'.format(token)
+
+formatter = RedisFormatter()
+store = make_store('redis', redis=redis.Redis(), redis_counter_key=formatter.counter, formatter=formatter)
+
+# ('my:namespace:key:2111', 'my:namespace:key:2111')
+key, token = store.insert('aardvark')
+```
+
+### Token generators
+
+By default, revokation tokens are created with the ``token.TokenGenerator`` class and the key itself is used.
+
+Any class or mixin with a ``create_token`` method can be used as a token generator.
+
+### Alternate alphabets
+     
+Any zero-indexed iterable can be passed in as ``alphabet`` to a store or the ``make_store`` function.
 
 ```python
-import shorten
+from shorten import make_store
 
 # Use an alternative alphabet with faces
 alphabet = [
   ':)', ':(', ';)', ';(', '>:)', ':D', ':x', ':X', ':|', ':O', '><', '<<', '>>', '^^', 'O_o', u'?_?',
 ]
 
-shortener = shorten.shortener('memory', alphabet=alphabet)
+store = make_store('memory', alphabet=alphabet)
 
 values = [
   'aardvark', 
@@ -87,11 +131,13 @@ values = [
   'elk',
 ]
 
-keys = map(shortener.insert, values)
+keys = [store.insert(v)[0] for value in values]
 
 # [':(:):):)', ':(:):):(', ':(:):);)', ':(:):);(', ':(:):)>:)']
 print(keys)
 ```
 
-For a working example, see `example.py`.
+## Example
+
+For a working example of URL-shortening website, see `example.py`.
 
