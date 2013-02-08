@@ -128,6 +128,51 @@ By default, revokation tokens are created with the
 Any class or mixin with a ``create_token`` method can be used as a token
 generator.
 
+.. code:: python
+    
+    from uuid import uuid4
+    from shorten.key import bx_encode
+
+    def group(string, n):
+        return [string[i:i+n] for i in range(0, len(string), n)]
+
+    class GoogleTokenGenerator(object):
+        """\
+        This will produce 16 character alphabetic revokation tokens similar
+        to the ones Google uses for its application-specific passwords.
+
+        Google tokens are of the form:
+            
+            xxxx-xxxx-xxxx-xxxx
+
+        with alphabetic characters only.
+        """
+
+        alphabet = 'abcdefghijklmnopqrstuvwxyz'
+        
+        def create_token(self, key):            
+            token_length = 16
+            group_size = 4
+            groups = token_length/group_size
+
+            # Generate a random UUID
+            uuid = uuid4()          
+
+            # Convert it to a number with the given alphabet, 
+            # padding with the 0-symbol as needed)            
+            token = shorten.key.bx_encode(int(uuid.hex, 16), self.alphabet)
+            token = token.rjust(token_length, self.alphabet[0])
+                        
+            return '-'.join(group(token, group_size)[:groups])
+    
+
+    from shorten import make_store
+
+    store = make_store('memory', token_generator=GoogleTokenGenerator())
+    
+    # ('2111', 'mmoy-vvwg-trhc-uzqq')
+    store.insert('aardvark')    
+
 Alternate alphabets
 ~~~~~~~~~~~~~~~~~~~
 
