@@ -20,6 +20,10 @@ setup(
    version = __version__,
    description = 'A Python library for generating short URLs.',
 
+   requires = [
+      'redis',
+   ],
+
    author = 'Charlie Liban',
    author_email = 'charlie@tyrannosaur.ca',
    maintainer='Charlie Liban',

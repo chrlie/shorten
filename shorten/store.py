@@ -3,8 +3,11 @@ import operator
 import itertools
 import weakref
 
-import redis
-from redis.exceptions import WatchError
+try:
+   import redis
+   from redis.exceptions import WatchError
+except ImportError:
+   pass
 
 from formatter import Formatter
 from token import TokenGenerator

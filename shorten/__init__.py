@@ -4,7 +4,7 @@ import store
 
 from formatter import Formatter
 
-__version__ = '1.0.1'
+__version__ = '1.0.2'
 __all__ = ['__version__', 'key', 'token', 'store', 'make_store', 'stores', 'Formatter']
 
 stores = ('memcache', 'memory', 'mongo', 'redis', 'redis-bucket', 'sqlalchemy')
