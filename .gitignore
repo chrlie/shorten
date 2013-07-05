@@ -1,7 +1,13 @@
+# vim swap files. Yech
 *.sw[p-z]
+
+# Python bytecode
 *.py[oc]
-venv/
-env/
+
+# Virtualenv
+.python
+
+# distutils stuff
 *.egg-info/
 build/
 dist/

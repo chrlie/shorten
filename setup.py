@@ -21,7 +21,7 @@ setup(
    description = 'A Python library for generating short URLs.',
 
    requires = [
-      'redis',
+      'redis',      
    ],
 
    author = 'Charlie Liban',

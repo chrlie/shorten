@@ -1,0 +1,5 @@
+redis
+pylibmc
+gevent == 0.13
+sphinx
+nose

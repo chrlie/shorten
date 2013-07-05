@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to shorten’s documentation! &mdash; shorten 1.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '1.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="shorten 1.1.0 documentation" href="#" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li><a href="#">shorten 1.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-shorten-s-documentation">
+<h1>Welcome to shorten&#8217;s documentation!<a class="headerlink" href="#welcome-to-shorten-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul class="simple">
+</ul>
+</div>
+<dl class="function">
+<dt id="shorten.make_store">
+<tt class="descclassname">shorten.</tt><tt class="descname">make_store</tt><big>(</big><em>name</em>, <em>min_length=4</em>, <em>start=None</em>, <em>alphabet=None</em>, <em>formatter=None</em>, <em>token_generator=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.make_store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a store with a reasonable keygen.</p>
+<ul>
+<li><dl class="first docutils">
+<dt>memory - data and keys are created and stored in memory. Keys are allocated and</dt>
+<dd><p class="first last">returned in increasing order.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>redis  - data and keys are created and stored in Redis. Some keys may be missed,</dt>
+<dd><p class="first last">but are allocated in increasing order.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>redis-bucket - keys may be returned in a random order. Both data and keys are</dt>
+<dd><p class="first last">created and stored in Redis.</p>
+</dd>
+</dl>
+</li>
+<li></li>
+</ul>
+<p>::
+* hey
+* you</p>
+<div class="admonition-a-note-on-security admonition">
+<p class="first admonition-title">A note on security</p>
+<p>Once someone figures out your alphabet, they can make a reasonable guess
+that you&#8217;re encoding numbers sequentially.</p>
+<p class="last">Take a URL shortener service with a &#8216;private posting&#8217; option. A determined
+user can guess an alphabet and enumerate every key after their own.
+If that&#8217;s your concern, use UUIDs or buckets.</p>
+</div>
+<div class="admonition-a-note-on-buckets admonition">
+<p class="first admonition-title">A note on buckets</p>
+<p class="last">Buckets are intended to prevent casual enumeration of keys. Don&#8217;t rely
+on this for any sort of security.</p>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>formatter</strong> &#8211; hey</td>
+</tr>
+</tbody>
+</table>
+<p>Test</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>min_length</strong> &#8211; the minimum key length, in characters.</li>
+<li><strong>start</strong> &#8211; the starting index that the keygen counts from.</li>
+<li><strong>alphabet</strong> &#8211; the alphabet to use. Any indexable object
+can be used as an alphabet.</li>
+<li><strong>formatter</strong> &#8211; an object used to format the internal key
+and token names. <tt class="xref py py-class docutils literal"><span class="pre">Formatter</span></tt>
+provides a default implementation, returning the key
+and token unmodified.</li>
+<li><strong>token_generator</strong> &#8211; An object used to generate revokation tokens.
+<tt class="xref py py-class docutils literal"><span class="pre">TokenGenerator</span></tt> 
+provides a default implementation, which returns the 
+key as the revokation token.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="module-shorten.store.redis"></span><dl class="class">
+<dt id="shorten.store.redis.RedisKeygen">
+<em class="property">class </em><tt class="descclassname">shorten.store.redis.</tt><tt class="descname">RedisKeygen</tt><big>(</big><em>redis=None</em>, <em>redis_counter_key=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.store.redis.RedisKeygen" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates keys in-memory but increments them in Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>redis</strong> &#8211; an open Redis connection.</li>
+<li><strong>redis_counter_key</strong> &#8211; the Redis key for the keygen&#8217;s counter</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt id="shorten.store.redis.RedisStore">
+<em class="property">class </em><tt class="descclassname">shorten.store.redis.</tt><tt class="descname">RedisStore</tt><big>(</big><em>redis=None</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.store.redis.RedisStore" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stores values in Redis.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>redis</strong> &#8211; a Redis connection.</td>
+</tr>
+</tbody>
+</table>
+<p><a class="reference internal" href="#shorten.store.redis.RedisStore.insert" title="shorten.store.redis.RedisStore.insert"><tt class="xref py py-meth docutils literal"><span class="pre">insert()</span></tt></a> takes an optional <tt class="xref py py-class docutils literal"><span class="pre">redis.Pipeline</span></tt></p>
+<p>Multiple insertions or revokations can be performed with <tt class="xref py py-meth docutils literal"><span class="pre">bulk()</span></tt>,
+which will put all insertions and revokations in a pipeline before
+executing them.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
+   <span class="k">with</span> <span class="n">store</span><span class="o">.</span><span class="n">bulk</span><span class="p">()</span> <span class="k">as</span> <span class="n">bulk</span><span class="p">:</span>
+      <span class="n">bulk</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+      <span class="n">bulk</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;bonobo&#39;</span><span class="p">)</span>
+      <span class="n">bulk</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;caiman&#39;</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="n">BulkError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>         
+   <span class="k">pass</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="shorten.store.redis.RedisStore.insert">
+<tt class="descname">insert</tt><big>(</big><em>val</em>, <em>pipe=None</em><big>)</big><a class="headerlink" href="#shorten.store.redis.RedisStore.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates and returns a key and revokation token, inserts the value
+with that key, and returns the tuple (key, revokation token).</p>
+<p>Keys are <em>always</em> generated, so orphaned keys may occur if the pipeline
+is broken before a value can be inserted.</p>
+<p>If <tt class="xref py py-attr docutils literal"><span class="pre">pipe</span></tt> is given, this function cannot check for an existing
+revokation key. This can be accomplished by checking the nth-from-last 
+result:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pipe</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
+<span class="n">key</span> <span class="o">=</span> <span class="n">short</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="k">if</span> <span class="n">results</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+   <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s">&#39;Revokation key already exists.&#39;</span><span class="p">)</span>      
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="shorten.store.redis.RedisStore.revoke">
+<tt class="descname">revoke</tt><big>(</big><em>token</em>, <em>pipe=None</em><big>)</big><a class="headerlink" href="#shorten.store.redis.RedisStore.revoke" title="Permalink to this definition">¶</a></dt>
+<dd><p>Revokes (deletes) the key associated with the given revokation token.
+If the token does not exist, throws a KeyError. Otherwise returns True.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pipe</strong> &#8211; a Redis <tt class="xref py py-class docutils literal"><span class="pre">Pipeline</span></tt>. If not <cite>None</cite>, no value
+will be returned.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<p># .. automodule:: shorten.key
+#   :members:</p>
+<p># .. automodule:: shorten.token
+#   :members:</p>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to shorten&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2013, Charlie Liban.
+    </div>
+    <a href="https://github.com/tyrannosaur/shorten" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+        (function() {
+            var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+            t.parentNode.insertBefore(s, t);
+        })();
+    /* ]]> */
+    </script>
+        <script type="text/javascript">
+    setTimeout(function(){var a=document.createElement("script");
+    var b=document.getElementsByTagName("script")[0];
+    a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0013/7219.js?"+Math.floor(new Date().getTime()/3600000);
+    a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+    </script>
+
+    <script type="text/javascript">
+        new HelloBar(36402,48802);
+    </script>
+
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8742933-11']);
+      _gaq.push(['_setDomainName', 'none']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+
+    <script type="text/javascript">
+      (function() {
+        var t   = document.createElement('script');
+        t.type  = 'text/javascript';
+        t.async = true;
+        t.id    = 'gauges-tracker';
+        t.setAttribute('data-site-id',
+                       '4ddc27f6613f5d186d000007');
+        t.src = '//secure.gaug.es/track.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(t, s);
+      })();
+    </script>
+  </body>
+</html>
