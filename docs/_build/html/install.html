@@ -6,26 +6,26 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>&lt;no title&gt; &mdash; shorten 1.1.0 documentation</title>
+    <title>Installation &mdash; shorten 2.0.0 documentation</title>
     
-    <link rel="stylesheet" href="../_static/flasky.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
-        VERSION:     '1.1.0',
+        URL_ROOT:    './',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="shorten 1.1.0 documentation" href="../index.html" />
-    <link rel="next" title="&lt;no title&gt;" href="examples.html" />
-    <link rel="prev" title="&lt;no title&gt;" href="intro.html" />
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="shorten 2.0.0 documentation" href="index.html" />
+    <link rel="next" title="Introduction" href="user/intro.html" />
+    <link rel="prev" title="Shorten" href="index.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -36,15 +36,15 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="examples.html" title="&lt;no title&gt;"
+          <a href="user/intro.html" title="Introduction"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="intro.html" title="&lt;no title&gt;"
+          <a href="index.html" title="Shorten"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">shorten 1.1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">shorten 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -53,7 +53,22 @@
         <div class="bodywrapper">
           <div class="body">
             
-  
+  <div class="section" id="installation">
+<span id="install"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
+<p>Install with pip:</p>
+<div class="code sh highlight-python"><pre>$ pip install shorten</pre>
+</div>
+<p>If you want to run the tests, install the requirements in <tt class="docutils literal"><span class="pre">requirements.txt</span></tt>:</p>
+<div class="code sh highlight-python"><pre>$ virtualenv --no-site-packages .python &amp;&amp; source .python/bin/activate
+$ pip install -r requirements.txt</pre>
+</div>
+<p>A Redis server, memcache server and the <tt class="docutils literal"><span class="pre">memcached</span></tt> development libraries are
+also required. Redis, memcache and gevent tests can be skipped by passing
+<tt class="docutils literal"><span class="pre">redis</span></tt>, <tt class="docutils literal"><span class="pre">gevent</span></tt> or <tt class="docutils literal"><span class="pre">memcache</span></tt> to nose:</p>
+<div class="code sh highlight-python"><pre>$ nosetests tests -v -a !redis,!gevent,!memcache</pre>
+</div>
+</div>
+
 
           </div>
         </div>
@@ -61,19 +76,19 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
 <ul>
-  <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="intro.html" title="previous chapter">&lt;no title&gt;</a></li>
-      <li>Next: <a href="examples.html" title="next chapter">&lt;no title&gt;</a></li>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Shorten</a></li>
+      <li>Next: <a href="user/intro.html" title="next chapter">Introduction</a></li>
   </ul></li>
 </ul>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/user/custom_store.txt"
+    <li><a href="_sources/install.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
+    <form class="search" action="search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />

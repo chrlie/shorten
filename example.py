@@ -5,89 +5,70 @@ For example:
    gunicorn -w 4 example:app
 """
 
-import re
+import redis
 
-from redis import Redis
-from flask import Flask, request, redirect, url_for, jsonify as _jsonify
+from rfc3987 import parse
+
+from flask import Flask, request, redirect, url_for
+from flask import jsonify as _jsonify
+
 from werkzeug import iri_to_uri
 
-from shorten import make_store
-from shorten.token import UUIDTokenGenerator
+from shorten import RedisStore, NamespacedFormatter, UUIDTokenGenerator, RevokeError
+from shorten import alphabets
 
-app = Flask(__name__)
-app_name = 'short.ur'
-
-redis = Redis()
-
-def okay(obj=None):   
-   default = {'status': 'okay'}
-   default.update(obj or {})
-   return _jsonify(default)
-
-def error(obj, error_code=400):
-   default = {'status': 'error'}
-   default.update(obj)
-   res = _jsonify(default)
-   res.error_code = error_code
+def jsonify(obj, status_code=200):
+   obj['status'] = 'error' if 'error' in obj else 'okay'
+   res = _jsonify(obj)
+   res.status_code = status_code
    return res
 
-def valid_url(string):
-   # TODO: Don't allow anything redirecting to the site itself  
-   return re.match('http(s){0,1}://.+\..+', string, re.I) is not None
+def valid_url(url):
+   p = parse(url, rule='URI_reference')
+   return all(p['scheme'], p['authority'], p['path'])
 
-class RedisFormatter(object):
+app = Flask(__name__)
 
-   redis_namespace = app_name   
-
-   def format_key(self, key):
-      return '{0}:key:{1}'.format(self.redis_namespace, key)
-
-   def format_token(self, token):
-      return '{0}:token:{1}'.format(self.redis_namespace, token)
-
-   @property
-   def counter_key(self):
-      return '{0}:counter'.format(self.redis_namespace)
-
-formatter = RedisFormatter()
+redis_client = redis.Redis()
+formatter = NamespacedFormatter('shorten')
 token_gen = UUIDTokenGenerator()
-store = make_store('redis', redis=redis, redis_counter_key=formatter.counter_key, \
-                            token_generator=token_gen, formatter=formatter)
 
-@app.route('/')
+store = RedisStore(redis_client=redis_client, 
+   min_length=3,
+   counter_key='shorten:counter_key',
+   formatter=formatter,
+   token_gen=token_gen,
+   alphabet=alphabets.URLSAFE_DISSIMILAR)
+
+@app.route('/', methods=['POST'])
 def shorten():
-   try:
-      url = request.args['u'].strip()
+   url = request.form['url'].strip()
 
-      if not valid_url(url):
-         return error({'error': 'Not a valid url.'})
-      else:
-         key, token = store.insert(url)
-         short_url = url_for('bounce', key=key, _external=True)
-         revoke_url = url_for('revoke', token=token, _external=True)
+   if not valid_url(url):
+      return jsonify({'error': str(e)}, 400)
 
-         return okay({'short_url': short_url, 'revoke_url': revoke_url})
+   key, token = store.insert(url)
 
-   except KeyError as e:
-      return error({'error': 'No url provided.'})
+   url = url_for('bounce', key=key, _external=True)
+   revoke = url_for('revoke', token=token, _external=True)
+   
+   return jsonify({'url': url, 'revoke': revoke})
 
-@app.route('/<key>')
+@app.route('/<key>', methods=['GET'])
 def bounce(key):
-   try:     
-      url = store[key]
-      return redirect(iri_to_uri(url))
+   try:
+      uri = store[key]
+      return redirect(iri_to_uri(uri))
+   except KeyError as e:
+      return jsonify({'error': 'url not found'}, 400)
 
-   except KeyError:
-      return error({'error': 'No URL found.'})
-
-@app.route('/r/<token>')
-def revoke(token=None):  
+@app.route('/r/<token>', methods=['POST'])
+def revoke(token):
    try:
       store.revoke(token)
-      return okay()
+   except RevokeError as e:
+      return jsonify({'error': e}, 400)
 
-   except KeyError as e:
-      return error({'error': 'Could not revoke.'})
-      
+   
 if __name__ == '__main__':
    app.run('0.0.0.0')

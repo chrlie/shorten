@@ -31,8 +31,8 @@ class MemoryStore(BaseStore, FormatterMixin):
    """\
    Stores keys, tokens and data in memory.
 
-   If `key_gen` is `None`, a :class:`MemoryKeygen` will be created 
-   with the following paramters:
+   If `key_gen` is `None`, a :class:`MemoryKeygen <shorten.MemoryKeygen>`
+   will be created with the following paramters:
 
    =================  ===================================================
    `alphabet`         an iterable of characters in an alphabet.      
@@ -41,9 +41,10 @@ class MemoryStore(BaseStore, FormatterMixin):
    `start`            the number to start the keygen's counter at.
    =================  ===================================================
 
-   :param key_gen:         a key generator. If `None`, a new key
-                           generator is created (see above).
-   :type key_gen:          a MemoryGenerator or None
+   :param key_gen:    a key generator. If `None`, a new key
+                      generator is created (see above).
+
+   :type key_gen:     a MemoryKeygen or None
    """
   
    def __init__(self, **kwargs):

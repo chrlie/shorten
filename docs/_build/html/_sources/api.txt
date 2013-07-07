@@ -3,25 +3,26 @@ API
 
 This part of the documentation covers the developer interfaces of Shorten.
 
-Base Classes
-~~~~~~~~~~~~
+Store Objects
+~~~~~~~~~~~~~
 
-The base class used to create and operate stores. Methods that should be 
+The base classes used to create and operate stores. Methods that should be 
 implemented by a custom class are indicated.
 
 .. autoclass:: shorten.BaseStore
    :members:
 
-The base class for key generators. 
-
 .. autoclass:: shorten.BaseKeyGenerator
    :members:
+
+.. autofunction:: shorten.make_store
 
 Memory Stores
 ~~~~~~~~~~~~~
 
 .. autoclass:: shorten.MemoryStore
    :members:
+   :inherited-members:
 
 .. autoclass:: shorten.MemoryKeygen
    :members:
@@ -52,3 +53,18 @@ Token Generators
 
 .. autoclass:: shorten.UUIDTokenGenerator
    :members:
+
+Formatter Objects
+~~~~~~~~~~~~~~~~~
+
+.. autoclass:: shorten.Formatter
+   :members:
+
+.. autoclass:: shorten.NamespacedFormatter
+   :members:
+
+Encoding and Decoding
+~~~~~~~~~~~~~~~~~~~~~
+
+.. autofunction:: shorten.key.bx_encode
+.. autofunction:: shorten.key.bx_decode

@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>User Guide &mdash; shorten 1.1.0 documentation</title>
+    <title>Shorten &mdash; shorten 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,8 +23,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="shorten 1.1.0 documentation" href="#" />
-    <link rel="next" title="Introduction" href="user/intro.html" />
+    <link rel="top" title="shorten 2.0.0 documentation" href="#" />
+    <link rel="next" title="Installation" href="install.html" />
    
   
   <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
@@ -38,9 +38,9 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="user/intro.html" title="Introduction"
+          <a href="install.html" title="Installation"
              accesskey="N">next</a> |</li>
-        <li><a href="#">shorten 1.1.0 documentation</a> &raquo;</li> 
+        <li><a href="#">shorten 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -49,69 +49,61 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <hr class="docutils" />
-<p>Shorten is a <a class="reference external" href="http://opensource.org/licenses/MIT">MIT licensed</a> library for storing your data
-with auto-generated short keys. Use an in-memory, Redis or memcache backend with Shorten.</p>
-<p>I made this library after being unable to find a satsifactory URL shortening
-library. Shorten increments a counter but without clever tricks and obfiscuated
-schemes that produce unmaintainable code.</p>
-<p>Replace this:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">random</span>
-
-<span class="n">ALPHABET</span> <span class="o">=</span> <span class="s">&#39;ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456790-_&#39;</span>
-<span class="n">BASE</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ALPHABET</span><span class="p">)</span>
-<span class="n">ALPHABET</span> <span class="o">=</span> <span class="n">random</span><span class="o">.</span><span class="n">shuffle</span><span class="p">(</span><span class="n">ALPHABET</span><span class="p">)</span>
-
-<span class="k">def</span> <span class="nf">encode</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
-   <span class="n">digits</span> <span class="o">=</span> <span class="p">[]</span>
-
-   <span class="k">while</span> <span class="n">n</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-      <span class="n">digits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ALPHABET</span><span class="p">[</span><span class="n">n</span> <span class="o">%</span> <span class="n">BASE</span><span class="p">])</span>
-      <span class="n">n</span> <span class="o">=</span> <span class="n">n</span> <span class="o">//</span> <span class="n">BASE</span>
-
-   <span class="k">return</span> <span class="s">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">digits</span><span class="p">)</span>
-</pre></div>
-</div>
+  <div class="section" id="shorten">
+<h1>Shorten<a class="headerlink" href="#shorten" title="Permalink to this headline">¶</a></h1>
+<p>Release v2.0.0. (<a class="reference internal" href="install.html#install"><em>Installation</em></a>)</p>
+<p>Shorten is a <a class="reference external" href="http://opensource.org/licenses/MIT">MIT licensed</a> Python library
+for storing your data with automatically generated keys. Use your choice of
+backend: in-memory, Redis and Memcached are supported by default.</p>
+<p>I made this library after being unable to find anything satisfactory for
+URL shortening. Shorten contains no clever tricks or obfuscated schemes
+that produce unmaintainable code.</p>
+<p>It&#8217;s gevent-safe, so you can use it with Gunicorn and Heroku (and
+consequently Flask, Django, Pyramid). Currently, it is neither
+threadsafe nor multiprocess safe.</p>
 <div class="section" id="user-guide">
-<h1>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h1>
+<h2>User Guide<a class="headerlink" href="#user-guide" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user/intro.html">Introduction</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="user/intro.html#making-a-store">Making a Store</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/intro.html#inserting-values">Inserting Values</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/intro.html#revoking-keys">Revoking Keys</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/intro.html#customizing-key-generation">Customizing Key Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user/intro.html#customizing-token-generation">Customizing Token Generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/intro.html#formatters">Formatters</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user/examples.html">Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="user/examples.html#a-mock-google-token-generator">A Mock Google Token Generator</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user/examples.html#url-shortening-service">URL Shortening Service</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user/examples.html#flask-extension">Flask Extension</a></li>
 </ul>
 </li>
 </ul>
 </div>
 </div>
 <div class="section" id="api-documentation">
-<h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+<h2>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#base-classes">Base Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#store-objects">Store Objects</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#memory-stores">Memory Stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#redis-stores">Redis Stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#memcache-stores">Memcache Stores</a></li>
 <li class="toctree-l2"><a class="reference internal" href="api.html#token-generators">Token Generators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#formatter-objects">Formatter Objects</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api.html#encoding-and-decoding">Encoding and Decoding</a></li>
 </ul>
 </li>
 </ul>
+</div>
 </div>
 <div class="section" id="indices-and-tables">
 <h2>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
-<li><a class="reference internal" href="py-modindex.html"><em>Module Index</em></a></li>
-<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
 </ul>
 </div>
 </div>
@@ -124,10 +116,13 @@ schemes that produce unmaintainable code.</p>
         <div class="sphinxsidebarwrapper">
   <h3><a href="#">Table Of Contents</a></h3>
   <ul>
-<li><a class="reference internal" href="#">User Guide</a><ul>
+<li><a class="reference internal" href="#">Shorten</a><ul>
+<li><a class="reference internal" href="#user-guide">User Guide</a><ul>
 </ul>
 </li>
 <li><a class="reference internal" href="#api-documentation">API Documentation</a><ul>
+</ul>
+</li>
 <li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
 </ul>
 </li>
@@ -135,7 +130,7 @@ schemes that produce unmaintainable code.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="#">Documentation overview</a><ul>
-      <li>Next: <a href="user/intro.html" title="next chapter">Introduction</a></li>
+      <li>Next: <a href="install.html" title="next chapter">Installation</a></li>
   </ul></li>
 </ul>
   <h3>This Page</h3>

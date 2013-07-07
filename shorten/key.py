@@ -39,8 +39,8 @@ def bx_decode(string, alphabet, mapping=None):
    """\
    Transforms a string in :attr:`alphabet` to an integer.
    
-   If `mapping` is provided, each key must map to its positional
-   value without duplicates.
+   If :attr:`mapping` is provided, each key must map to its 
+   positional value without duplicates.
 
    ::
 
@@ -49,11 +49,11 @@ def bx_decode(string, alphabet, mapping=None):
       # 3
       bx_decode('ba', 'abc', mapping)
    
-   :param string:       a string consisting of key from :attr:`alphabet`.
+   :param string:       a string consisting of key from `alphabet`.
    :param alphabet:     a 0-based iterable.
    
-   :param mapping:      a :class:`Mapping`. If `None`, the inverse
-                        of :attr:`alphabet` is used, with values mapped
+   :param mapping:      a :class:`Mapping <collection.Mapping>`. If `None`, 
+                        the inverse of `alphabet` is used, with values mapped
                         to indices.
    """
   
@@ -83,7 +83,7 @@ class BaseKeyGenerator(Iterable):
    If the key generator is deterministic, then two generators should 
    yield the same keys given the same parameters.
 
-   :attr:`alphabet` can be any iterable, as long as each item is not 
+   `alphabet` can be any iterable, as long as each item is not 
    contained within any other item. For instance, ``('00', '0', '1')`` 
    would be an ambiguous alphabet, since ``00`` could be interpreted as 
    two numbers.
@@ -110,14 +110,17 @@ class BaseKeyGenerator(Iterable):
       [key for key in islice(k, 0, 3)]
 
 
+   .. admonition:: Subclassing
+
+      Subclasses should implement :meth:`__iter__ <BaseKeyGenerator.__iter__>`.
+
    :param alphabet:     an iterable.
 
    :param start:        the number to start iteration at.
 
    :param min_length:   the length of the string to start iteration at. Leading
                         zero-characters are not counted in the length.
-                        Only one of :attr:`start` or :attr:`min_length` should 
-                        be given.
+                        Only one of `start` or `min_length` should be given.
    """
   
    def __init__(self, alphabet=None, min_length=None, start=None):           
@@ -143,10 +146,4 @@ class BaseKeyGenerator(Iterable):
       return bx_encode(n, self.alphabet)
 
    def __iter__(self):
-      """\
-
-      .. admonition::
-         Implement this in a subclass.
-
-      """
       raise NotImplementedError

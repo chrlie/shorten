@@ -43,8 +43,8 @@ class MemcacheStore(BaseStore, FormatterMixin):
    """\
    Stores keys, tokens and data in Memcache. 
 
-   If `key_gen` is `None`, a :class:`MemcacheKeygen` will be created 
-   with the following paramters:
+   If `key_gen` is `None`, a :class:`MemcacheKeygen <shorten.MemcacheKeyGen>`
+    will be created with the following paramters:
 
    =================  ===================================================
    `alphabet`         an iterable of characters in an alphabet.      
@@ -64,7 +64,7 @@ class MemcacheStore(BaseStore, FormatterMixin):
                            generator is created (see above).
 
    :param redis_client:    a Memcache client.
-   :type key_gen:          a MemcacheKeyGenerator or None
+   :type key_gen:          a MemcacheKeyGen or None
    """
  
    def __init__(self, **kwargs):
@@ -95,8 +95,8 @@ class MemcacheStore(BaseStore, FormatterMixin):
       Inserts a value and returns a :class:`Pair <Pair>`.
 
       If the generated key exists or memcache cannot store it, a 
-      :class:`KeyInsertError <KeyInsertError>` is raised (or a
-      :class:`TokenInsertError <TokenInsertError>` if a token
+      :class:`KeyInsertError <shorten.KeyInsertError>` is raised (or a
+      :class:`TokenInsertError <shorten.TokenInsertError>` if a token
       exists or cannot be stored).      
       """
 

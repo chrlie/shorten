@@ -1,6 +1,8 @@
 Examples
 ========
 
+.. _token-gen-example:
+
 A Mock Google Token Generator
 -----------------------------
 
@@ -57,15 +59,28 @@ passwords.
 URL Shortening Service
 ----------------------
 
-Imitate goo.gl, bit.ly, tw.tr and countless other URL shortening
+Imitate goo.gl, bit.ly, tinyurl and countless other URL shortening
 services in under a hundred lines of code.
+
+`Flask <https://pypi.python.org/pypi/flask/>`_,
+`rfc3987 <https://pypi.python.org/pypi/rfc3987/>`_ and
+`redis <https://pypi.python.org/pypi/redis/>`_ are required.
+
+.. code:: sh
+
+   $ virtualenv --no-site-packages .python && source .python/bin/activate
+   $ pip install flask rfc3987 redis
+
+Our API will read in a URL from a POST variable and return JSON containing
+the shortened link and the revokation URL. Proper HTTP response codes
+are also returned - 400 for errors and 200 for successful operations.
+
+Let's set up the Flask skeleton code:
 
 ::
 
-   from rfc3987 import parse
-   from flask import Flask, jsonify as _jsonify
-
-   app = Flask(__name__)
+   from flask import Flask, request, redirect, url_for
+   from flask import jsonify as _jsonify
 
    def jsonify(obj, status_code=200):
       obj['status'] = 'error' if 'error' in obj else 'okay'
@@ -73,28 +88,91 @@ services in under a hundred lines of code.
       res.status_code = status_code
       return res
 
+   app = Flask(__name__)
+
    @app.route('/', methods=['POST'])
    def shorten():
-      uri = request.body()
-      parsed_uri = parse(url, rule='URI_reference')
+      pass
+   
+   @app.route('/', methods=['GET'])
+   def bounce():
+      pass
 
-      if parsed_uri:
-         key, token = store.insert(uri)
+   @app.route('/r', methods=['POST'])
+   def revoke(token):
+      pass
 
-         url = url_for('resolve', key=key, _external=True)
-         revoke = url_for('revoke', token=token, _external=True)
-         return jsonify({'url': url, 'revoke': revoke})
-      else:
-         return jsonify({'error': 'invalid url'}, 400)
+
+After creating a Redis connection, the store should be created with a 
+minimum key length (as to not conflict with site URLs) and a URL-safe 
+alphabet:
+
+::
+
+   import redis
+   from shorten import RedisStore, NamespacedFormatter, UUIDTokenGenerator
+   from shorten import alphabets
+
+   redis_client = redis.Redis()
+   formatter = NamespacedFormatter('shorten')
+   token_gen = UUIDTokenGenerator()
+
+   store = RedisStore(redis_client=redis_client, 
+      min_length=3,
+      counter_key='shorten:counter_key',
+      formatter=formatter,
+      token_gen=token_gen,
+      alphabet=alphabets.URLSAFE_DISSIMILAR)
+
+
+Now the endpoint functions can be filled out:
+
+::
+
+   from rfc3987 import parse
+   from werkzeug import iri_to_uri
+
+   from shorten import RevokeError
+
+   def valid_url(url):
+      return bool(parse(url, rule='URI_reference'))
+
+   @app.route('/', methods=['POST'])
+   def shorten():
+      url = request.form['url'].strip()
+
+      if not valid_url(url):
+         return jsonify({'error': str(e)}, 400)
+
+      key, token = store.insert(url)
+
+      url = url_for('bounce', key=key, _external=True)
+      revoke = url_for('revoke', token=token, _external=True)
+      
+      return jsonify({'url': url, 'revoke': revoke})
 
    @app.route('/<key>', methods=['GET'])
-   def resolve(key):
+   def bounce(key):
       try:
          uri = store[key]
          return redirect(iri_to_uri(uri))
       except KeyError as e:
          return jsonify({'error': 'url not found'}, 400)
-   
-Running with gunicorn 
 
+   @app.route('/r/<token>', methods=['POST'])
+   def revoke(token):
+      try:
+         store.revoke(token)
+      except RevokeError as e:
+         return jsonify({'error': e}, 400)
+
+
+The above code can be found in ``example.py``. To run the server, 
+install gevent and Gunicorn, then run Gunicorn in the same directory
+as ``example.py``:
+
+.. code:: sh
+   
+   $ pip install gunicorn gevent
+   $ gunicorn example:app -b 0.0.0.0:5000 -w 3 -k gevent_wsgi
 

@@ -3,35 +3,22 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+Shorten
+=======
 
-===================
+Release v\ |version|. (:ref:`Installation <install>`)
 
-Shorten is a `MIT licensed <http://opensource.org/licenses/MIT>`_ library for storing your data 
-with auto-generated short keys. Use an in-memory, Redis or memcache backend with Shorten.
+Shorten is a `MIT licensed <http://opensource.org/licenses/MIT>`_ Python library
+for storing your data with automatically generated keys. Use your choice of
+backend: in-memory, Redis and Memcached are supported by default.
 
-I made this library after being unable to find a satsifactory URL shortening
-library. Shorten increments a counter but without clever tricks and obfiscuated
-schemes that produce unmaintainable code.
+I made this library after being unable to find anything satisfactory for
+URL shortening. Shorten contains no clever tricks or obfuscated schemes 
+that produce unmaintainable code.
 
-Replace this:
-
-::
-
-   import random
-
-   ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456790-_'
-   BASE = len(ALPHABET)
-   ALPHABET = random.shuffle(ALPHABET)
-
-   def encode(n):
-      digits = []
-
-      while n > 0:
-         digits.append(ALPHABET[n % BASE])
-         n = n // BASE
-
-      return ''.join(digits)
-
+It's gevent-safe, so you can use it with Gunicorn and Heroku (and
+consequently Flask, Django, Pyramid). Currently, it is neither
+threadsafe nor multiprocess safe.
 
 User Guide
 ----------
@@ -39,8 +26,8 @@ User Guide
 .. toctree::
    :maxdepth: 2
 
+   install
    user/intro
-   user/advanced
    user/examples
 
 API Documentation
@@ -52,9 +39,7 @@ API Documentation
    api
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
 

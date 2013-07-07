@@ -1,7 +1,7 @@
 import redis
-import shorten
 import nose
 
+import shorten
 from common import BaseStoreTest, GeventTestMixin
 
 NAMESPACE = 'shorten:nose_tests'

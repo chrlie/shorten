@@ -46,8 +46,8 @@ class RedisStore(BaseStore, FormatterMixin):
    """\
    Stores keys, tokens and data in Redis.   
 
-   If `key_gen` is `None`, a :class:`RedisKeygen` will be created 
-   with the following paramters:
+   If `key_gen` is `None`, a :class:`RedisKeygen <shorten.RedisKeygen` 
+   will be created with the following paramters:
 
    =================  ===================================================
    `alphabet`         an iterable of characters in an alphabet.      
@@ -67,7 +67,7 @@ class RedisStore(BaseStore, FormatterMixin):
                            generator is created (see above).
 
    :param redis_client:    an open Redis connection.
-   :type key_gen:          a RedisKeyGenerator or None
+   :type key_gen:          a RedisKeyGen or None
    """
   
    def __init__(self, **kwargs):
@@ -95,16 +95,17 @@ class RedisStore(BaseStore, FormatterMixin):
 
    def insert(self, val, pipe=None):
       """\
-      Inserts a value and returns a :class:`Pair <Pair>`.
+      Inserts a value and returns a :class:`Pair <shorten.Pair>`.
 
       .. admonition :: Key Safety
 
          Keys and tokens are always inserted with a :class:`Pipeline`, so 
          irrevocable keys will never occur.
       
-      If `pipe` is given, :class:`KeyInsertError`s and 
-      :class:`TokenInsertError`s will not be thrown if duplicate keys and 
-      tokens exist. Instead, the nth-from-last results must be checked:
+      If `pipe` is given, :class:`KeyInsertError <shorten.KeyInsertError>` and 
+      :class:`TokenInsertError <shorten.TokenInsertError>` will not be thrown 
+      if duplicate keys and tokens exist. Instead, the nth-from-last results 
+      must be checked:
       
       ::
       
@@ -163,11 +164,12 @@ class RedisStore(BaseStore, FormatterMixin):
       """\
       Revokes the key associated with the given revokation token.
 
-      If the token does not exist, a :class:`KeyError` is thrown. Otherwise
-      `None` is returned.
+      If the token does not exist, a :class:`KeyError <KeyError>` is thrown. 
+      Otherwise `None` is returned.
 
-      If `pipe` is given, then a :class:`RevokeError` will not be thrown
-      if the key does not exist. The n-th from last result should be checked:
+      If `pipe` is given, then a :class:`RevokeError <shorten.RevokeError>` 
+      will not be thrown if the key does not exist. The n-th from last result
+      should be checked like so:
 
       ::
 

@@ -1,8 +1,9 @@
-import gevent
-import nose
 import sys
 import functools
 from types import MethodType
+
+import gevent
+import nose
 
 import shorten
 from shorten.lock import Lock

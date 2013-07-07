@@ -4,8 +4,6 @@ from ..token import TokenGenerator
 class NamedTuple(object):
    """\
    Make our own version of namedtuple that isn't so ugly.
-
-   :param name:   the name of the class. 
    
    If the class name is not given, all attributes are 
    capitalized and concatenated to 'NamedTuple' as the 
@@ -16,10 +14,14 @@ class NamedTuple(object):
       # 'HelloWorldNamedTuple'
       HelloWorldNamedTuple.__name__
 
+   :param name:   the name of the class to create. If not
+                  given, a name is created from the
+                  parameters (see above).
    """
 
    def __new__(cls, *attrs, **kwargs):
-      cls_name = '{0}NamedTuple'.format(''.join([a.capitalize() for a in attrs]))
+      cls_name = '{0}NamedTuple'.format(
+         ''.join([a.capitalize() for a in attrs]))
       new_name = kwargs.get('name', cls_name)
 
       def __new__(cls, *args):
@@ -29,9 +31,12 @@ class NamedTuple(object):
          return tuple(self)
 
       def __repr__(self):
-         args = ['{0}={1}'.format(attr, repr(self[i])) for (i, attr) in enumerate(attrs)]
+         args = ['{0}={1}'.format(attr, 
+            repr(self[i])) for (i, attr) in enumerate(attrs)]
          pairs = ', '.join(args)
-         return '{name}({pairs})'.format(name=self.__class__.__name__, pairs=pairs)
+
+         return '{name}({pairs})'.format(
+            name=self.__class__.__name__, pairs=pairs)
 
       new_attrs = {
          '__new__': __new__,
@@ -50,7 +55,10 @@ class NamedTuple(object):
 
 class Pair(NamedTuple('key', 'token')):
    """\
-   A named tuple that contains a key and token.
+   A named tuple that contains :attr key <Pair.key>: and
+   :attr token <Pair.token>: attributes.
+   The key and token can be accessed by indexing or
+   destructuring, just like a normal tuple.   
    """
 
    pass
@@ -64,43 +72,23 @@ class FormattedPair(NamedTuple('key', 'token', 'formatted_key', 'formatted_token
 
 class BaseStore(object):
    """\
-   A key-value store that has auto-generated keys. Deletion is through
-   `tokens`, which are generated along with keys. A `key` cannot be
-   used to delete a value (unless they are the same value).
-   
-   ::
-
-      s = Store()
-      key, token = s.insert('aardvark')
-
-      # 'aardvark'
-      s[key]
-      
-      # Removes 'aardvark'      
-      del s[token]
-
-      # None
-      s.get(key, None)
-
+   Stores allow insertion, deletion and lookup of data through an interface similar 
+   to a Python :class:`dict`, the primary difference being that store `keys` 
+   are generated automatically by a `key generator` (or `keygen`). `tokens` are
+   used to delete values from the store and are supplied by a `token generator`.
 
    Because they are closely associated, keys and tokens are returned 
-   in a :class:`Pair <Pair>`. A :class:`Pair <Pair>` is a named :class:`tuple`
+   in a :class:`Pair <shorten.Pair>`. A pair is a named :class:`tuple`
    containing a `key` and `token` (in that order) as well `key` and `token` 
    attributes.
 
    ::
 
       s = Store()
-      pair = s.insert('aardvark')
+      key, token = pair = s.insert('aardvark')
 
       # 'aardvark'
       s[pair.key]
-
-      # Removes 'aardvark'
-      del s[pair.token]
-
-      pair = store.insert('bonobo')
-      key, token = pair
 
       # True
       pair.key == pair[0] == key
@@ -108,11 +96,26 @@ class BaseStore(object):
       # True
       pair.token == pair[1] == token
 
+      # Removes 'aardvark'
+      del s[pair.token]
+
 
    Unlike a Python :class:`dict`, a :class:`BaseStore <BaseStore>` allows 
    insertion but no modification of its values. Some stores may provide 
    :meth:`__len__`  and :meth:`__iter__` methods if the underlying storage 
    mechanism makes it feasible.
+
+   .. admonition:: Subclassing
+
+      Subclasses should implement 
+      :meth:`insert() <shorten.BaseStore.insert>`, 
+      :meth:`revoke() <shorten.BaseStore.revoke>`, 
+      :meth:`get_value() <shorten.BaseStore.get_value>`, 
+      :meth:`has_key() <shorten.BaseStore.has_key>`, 
+      :meth:`has_token() <shorten.BaseStore.has_token>`, 
+      :meth:`get_token() <shorten.BaseStore.get_token>` and 
+      :meth:`get_value() <shorten.BaseStore.get_value>`
+
 
    :param key_gen:        a :class:`Keygen` that generates unique keys.
 
@@ -121,6 +124,8 @@ class BaseStore(object):
 
    :param token_gen:      an object with a :meth:`create_token` method
                           that returns unique revokation tokens.            
+
+
    """
 
    def __init__(self, key_gen=None, formatter=None, token_gen=None):
@@ -143,9 +148,9 @@ class BaseStore(object):
 
    def next_formatted_pair(self):
       """\
-      Returns a :class:`FormattedPair <FormattedPair>` containing attributes 
-      `key`, `token`, `formatted_key` and `formatted_token`. Calling this method 
-      will always consume a key and token.
+      Returns a :class:`FormattedPair <shorten.store.FormattedPair>` containing 
+      attributes `key`, `token`, `formatted_key` and `formatted_token`. 
+      Calling this method will always consume a key and token.
       """
 
       key = self.key_gen.next()
@@ -170,7 +175,7 @@ class BaseStore(object):
 
    def insert(self, val):      
       """\
-      Insert a val and return a :class:`Pair <Pair>`, which
+      Insert a val and return a :class:`Pair <shorten.Pair>`, which
       is a :class:`tuple`. It contains a key and token (in
       that order) as well `key` and `token` attributes.
       
@@ -187,8 +192,8 @@ class BaseStore(object):
 
 
       If the generated key exists or the cannot be stored, a
-      :class:`KeyInsertError` is raised (or a :class:`TokenInsertError`
-      for tokens).
+      :class:`KeyInsertError <shorten.KeyInsertError>` is raised 
+      (or a :class:`TokenInsertError <shorten.TokenInsertError>` for tokens).
 
       ::
 
@@ -203,9 +208,9 @@ class BaseStore(object):
 
    def revoke(self, token):
       """\
-      Revokes the :attr:`token`. A :class:`RevokeError <RevokeError>` is 
-      raised if the token is not found or the underlying storage
-      cannot complete the revokation.
+      Revokes the :attr:`token`. A 
+      :class:`RevokeError <shorten.RevokeError>` is raised if the token 
+      is not found or the underlying storage cannot complete the revokation.
 
       ::
       
@@ -229,7 +234,19 @@ class BaseStore(object):
       raise NotImplementedError
 
    def has_key(self, key):            
+      """\
+      Returns `True` if the key exists in this store, `False` otherwise.
+      """
       raise NotImplementedError
 
    def has_token(self, token):
+      """\
+      Returns `True` if the token exists in this store, `False` otherwise.
+      """
+      raise NotImplementedError
+   
+   def get_token(self, key):
+      """\
+      Returns the token for :attr:`key`.
+      """
       raise NotImplementedError

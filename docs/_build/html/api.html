@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>API &mdash; shorten 1.1.0 documentation</title>
+    <title>API &mdash; shorten 2.0.0 documentation</title>
     
     <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +14,7 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '1.1.0',
+        VERSION:     '2.0.0',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +23,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="shorten 1.1.0 documentation" href="index.html" />
+    <link rel="top" title="shorten 2.0.0 documentation" href="index.html" />
     <link rel="prev" title="Examples" href="user/examples.html" />
    
   
@@ -40,7 +40,7 @@
         <li class="right" >
           <a href="user/examples.html" title="Examples"
              accesskey="P">previous</a> |</li>
-        <li><a href="index.html">shorten 1.1.0 documentation</a> &raquo;</li> 
+        <li><a href="index.html">shorten 2.0.0 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -52,56 +52,52 @@
   <div class="section" id="api">
 <h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
 <p>This part of the documentation covers the developer interfaces of Shorten.</p>
-<div class="section" id="base-classes">
-<h2>Base Classes<a class="headerlink" href="#base-classes" title="Permalink to this headline">¶</a></h2>
-<p>The base class used to create and operate stores. Methods that should be
+<div class="section" id="store-objects">
+<h2>Store Objects<a class="headerlink" href="#store-objects" title="Permalink to this headline">¶</a></h2>
+<p>The base classes used to create and operate stores. Methods that should be
 implemented by a custom class are indicated.</p>
 <dl class="class">
 <dt id="shorten.BaseStore">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">BaseStore</tt><big>(</big><em>key_gen=None</em>, <em>formatter=None</em>, <em>token_gen=None</em><big>)</big><a class="headerlink" href="#shorten.BaseStore" title="Permalink to this definition">¶</a></dt>
-<dd><p>A key-value store that has auto-generated keys. Deletion is through
-<cite>tokens</cite>, which are generated along with keys. A <cite>key</cite> cannot be
-used to delete a value (unless they are the same value).</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
-<span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
-
-<span class="c"># &#39;aardvark&#39;</span>
-<span class="n">s</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
-
-<span class="c"># Removes &#39;aardvark&#39;      </span>
-<span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="n">token</span><span class="p">]</span>
-
-<span class="c"># None</span>
-<span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
-</pre></div>
-</div>
+<dd><p>Stores allow insertion, deletion and lookup of data through an interface similar 
+to a Python <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>, the primary difference being that store <cite>keys</cite> 
+are generated automatically by a <cite>key generator</cite> (or <cite>keygen</cite>). <cite>tokens</cite> are
+used to delete values from the store and are supplied by a <cite>token generator</cite>.</p>
 <p>Because they are closely associated, keys and tokens are returned 
-in a <tt class="xref py py-class docutils literal"><span class="pre">Pair</span></tt>. A <tt class="xref py py-class docutils literal"><span class="pre">Pair</span></tt> is a named <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>
+in a <tt class="xref py py-class docutils literal"><span class="pre">Pair</span></tt>. A pair is a named <tt class="xref py py-class docutils literal"><span class="pre">tuple</span></tt>
 containing a <cite>key</cite> and <cite>token</cite> (in that order) as well <cite>key</cite> and <cite>token</cite> 
 attributes.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">s</span> <span class="o">=</span> <span class="n">Store</span><span class="p">()</span>
-<span class="n">pair</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">pair</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
 
 <span class="c"># &#39;aardvark&#39;</span>
 <span class="n">s</span><span class="p">[</span><span class="n">pair</span><span class="o">.</span><span class="n">key</span><span class="p">]</span>
-
-<span class="c"># Removes &#39;aardvark&#39;</span>
-<span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="n">pair</span><span class="o">.</span><span class="n">token</span><span class="p">]</span>
-
-<span class="n">pair</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;bonobo&#39;</span><span class="p">)</span>
-<span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">pair</span>
 
 <span class="c"># True</span>
 <span class="n">pair</span><span class="o">.</span><span class="n">key</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span>
 
 <span class="c"># True</span>
 <span class="n">pair</span><span class="o">.</span><span class="n">token</span> <span class="o">==</span> <span class="n">pair</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">token</span>
+
+<span class="c"># Removes &#39;aardvark&#39;</span>
+<span class="k">del</span> <span class="n">s</span><span class="p">[</span><span class="n">pair</span><span class="o">.</span><span class="n">token</span><span class="p">]</span>
 </pre></div>
 </div>
 <p>Unlike a Python <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>, a <tt class="xref py py-class docutils literal"><span class="pre">BaseStore</span></tt> allows 
 insertion but no modification of its values. Some stores may provide 
 <tt class="xref py py-meth docutils literal"><span class="pre">__len__()</span></tt>  and <tt class="xref py py-meth docutils literal"><span class="pre">__iter__()</span></tt> methods if the underlying storage 
 mechanism makes it feasible.</p>
+<div class="admonition-subclassing admonition">
+<p class="first admonition-title">Subclassing</p>
+<p class="last">Subclasses should implement 
+<a class="reference internal" href="#shorten.BaseStore.insert" title="shorten.BaseStore.insert"><tt class="xref py py-meth docutils literal"><span class="pre">insert()</span></tt></a>, 
+<a class="reference internal" href="#shorten.BaseStore.revoke" title="shorten.BaseStore.revoke"><tt class="xref py py-meth docutils literal"><span class="pre">revoke()</span></tt></a>, 
+<a class="reference internal" href="#shorten.BaseStore.get_value" title="shorten.BaseStore.get_value"><tt class="xref py py-meth docutils literal"><span class="pre">get_value()</span></tt></a>, 
+<a class="reference internal" href="#shorten.BaseStore.has_key" title="shorten.BaseStore.has_key"><tt class="xref py py-meth docutils literal"><span class="pre">has_key()</span></tt></a>, 
+<a class="reference internal" href="#shorten.BaseStore.has_token" title="shorten.BaseStore.has_token"><tt class="xref py py-meth docutils literal"><span class="pre">has_token()</span></tt></a>, 
+<a class="reference internal" href="#shorten.BaseStore.get_token" title="shorten.BaseStore.get_token"><tt class="xref py py-meth docutils literal"><span class="pre">get_token()</span></tt></a> and 
+<a class="reference internal" href="#shorten.BaseStore.get_value" title="shorten.BaseStore.get_value"><tt class="xref py py-meth docutils literal"><span class="pre">get_value()</span></tt></a></p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -125,11 +121,29 @@ key does not exist.</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="shorten.BaseStore.get_token">
+<tt class="descname">get_token</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#shorten.BaseStore.get_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the token for <tt class="xref py py-attr docutils literal"><span class="pre">key</span></tt>.</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="shorten.BaseStore.get_value">
 <tt class="descname">get_value</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#shorten.BaseStore.get_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Gets the value for <tt class="xref py py-attr docutils literal"><span class="pre">key</span></tt> or raise a <tt class="xref py py-class docutils literal"><span class="pre">KeyError</span></tt>
 if it doesn&#8217;t exist.
 <tt class="xref py py-meth docutils literal"><span class="pre">get()</span></tt> and <cite>store[key]</cite> will call this method.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="shorten.BaseStore.has_key">
+<tt class="descname">has_key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#shorten.BaseStore.has_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <cite>True</cite> if the key exists in this store, <cite>False</cite> otherwise.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="shorten.BaseStore.has_token">
+<tt class="descname">has_token</tt><big>(</big><em>token</em><big>)</big><a class="headerlink" href="#shorten.BaseStore.has_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns <cite>True</cite> if the token exists in this store, <cite>False</cite> otherwise.</p>
 </dd></dl>
 
 <dl class="method">
@@ -149,8 +163,8 @@ that order) as well <cite>key</cite> and <cite>token</cite> attributes.</p>
 </pre></div>
 </div>
 <p>If the generated key exists or the cannot be stored, a
-<tt class="xref py py-class docutils literal"><span class="pre">KeyInsertError</span></tt> is raised (or a <tt class="xref py py-class docutils literal"><span class="pre">TokenInsertError</span></tt>
-for tokens).</p>
+<tt class="xref py py-class docutils literal"><span class="pre">KeyInsertError</span></tt> is raised 
+(or a <tt class="xref py py-class docutils literal"><span class="pre">TokenInsertError</span></tt> for tokens).</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
    <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;bonobo&#39;</span><span class="p">)</span>
 <span class="k">except</span> <span class="p">(</span><span class="n">KeyInsertError</span><span class="p">,</span> <span class="n">TokenInsertError</span><span class="p">):</span>
@@ -162,17 +176,17 @@ for tokens).</p>
 <dl class="method">
 <dt id="shorten.BaseStore.next_formatted_pair">
 <tt class="descname">next_formatted_pair</tt><big>(</big><big>)</big><a class="headerlink" href="#shorten.BaseStore.next_formatted_pair" title="Permalink to this definition">¶</a></dt>
-<dd><p>Returns a <tt class="xref py py-class docutils literal"><span class="pre">FormattedPair</span></tt> containing attributes 
-<cite>key</cite>, <cite>token</cite>, <cite>formatted_key</cite> and <cite>formatted_token</cite>. Calling this method 
-will always consume a key and token.</p>
+<dd><p>Returns a <tt class="xref py py-class docutils literal"><span class="pre">FormattedPair</span></tt> containing 
+attributes <cite>key</cite>, <cite>token</cite>, <cite>formatted_key</cite> and <cite>formatted_token</cite>. 
+Calling this method will always consume a key and token.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="shorten.BaseStore.revoke">
 <tt class="descname">revoke</tt><big>(</big><em>token</em><big>)</big><a class="headerlink" href="#shorten.BaseStore.revoke" title="Permalink to this definition">¶</a></dt>
-<dd><p>Revokes the <tt class="xref py py-attr docutils literal"><span class="pre">token</span></tt>. A <tt class="xref py py-class docutils literal"><span class="pre">RevokeError</span></tt> is 
-raised if the token is not found or the underlying storage
-cannot complete the revokation.</p>
+<dd><p>Revokes the <tt class="xref py py-attr docutils literal"><span class="pre">token</span></tt>. A 
+<tt class="xref py py-class docutils literal"><span class="pre">RevokeError</span></tt> is raised if the token 
+is not found or the underlying storage cannot complete the revokation.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="k">try</span><span class="p">:</span>
    <span class="n">store</span><span class="o">.</span><span class="n">revoke</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Revoked!&#39;</span><span class="p">)</span>
@@ -184,14 +198,13 @@ cannot complete the revokation.</p>
 
 </dd></dl>
 
-<p>The base class for key generators.</p>
 <dl class="class">
 <dt id="shorten.BaseKeyGenerator">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">BaseKeyGenerator</tt><big>(</big><em>alphabet=None</em>, <em>min_length=None</em>, <em>start=None</em><big>)</big><a class="headerlink" href="#shorten.BaseKeyGenerator" title="Permalink to this definition">¶</a></dt>
 <dd><p>A class which yields a unique string on every iteration (a <cite>key</cite>).
 If the key generator is deterministic, then two generators should 
 yield the same keys given the same parameters.</p>
-<p><tt class="xref py py-attr docutils literal"><span class="pre">alphabet</span></tt> can be any iterable, as long as each item is not 
+<p><cite>alphabet</cite> can be any iterable, as long as each item is not 
 contained within any other item. For instance, <tt class="docutils literal"><span class="pre">('00',</span> <span class="pre">'0',</span> <span class="pre">'1')</span></tt> 
 would be an ambiguous alphabet, since <tt class="docutils literal"><span class="pre">00</span></tt> could be interpreted as 
 two numbers.</p>
@@ -211,6 +224,10 @@ generated by specifying <tt class="xref py py-attr docutils literal"><span class
 <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">islice</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">3</span><span class="p">)]</span>
 </pre></div>
 </div>
+<div class="admonition-subclassing admonition">
+<p class="first admonition-title">Subclassing</p>
+<p class="last">Subclasses should implement <tt class="xref py py-meth docutils literal"><span class="pre">__iter__</span></tt>.</p>
+</div>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -220,13 +237,21 @@ generated by specifying <tt class="xref py py-attr docutils literal"><span class
 <li><strong>start</strong> &#8211; the number to start iteration at.</li>
 <li><strong>min_length</strong> &#8211; the length of the string to start iteration at. Leading
 zero-characters are not counted in the length.
-Only one of <tt class="xref py py-attr docutils literal"><span class="pre">start</span></tt> or <tt class="xref py py-attr docutils literal"><span class="pre">min_length</span></tt> should 
-be given.</li>
+Only one of <cite>start</cite> or <cite>min_length</cite> should be given.</li>
 </ul>
 </td>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="function">
+<dt id="shorten.make_store">
+<tt class="descclassname">shorten.</tt><tt class="descname">make_store</tt><big>(</big><em>name</em>, <em>min_length=4</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.make_store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates a store with a reasonable keygen.</p>
+<div class="deprecated">
+<p><span>Deprecated since version 2.0.0: </span>Instantiate stores directly e.g. <tt class="docutils literal"><span class="pre">shorten.MemoryStore(min_length=4)</span></tt></p>
+</div>
 </dd></dl>
 
 </div>
@@ -236,8 +261,8 @@ be given.</li>
 <dt id="shorten.MemoryStore">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">MemoryStore</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.MemoryStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores keys, tokens and data in memory.</p>
-<p>If <cite>key_gen</cite> is <cite>None</cite>, a <tt class="xref py py-class docutils literal"><span class="pre">MemoryKeygen</span></tt> will be created 
-with the following paramters:</p>
+<p>If <cite>key_gen</cite> is <cite>None</cite>, a <a class="reference internal" href="#shorten.MemoryKeygen" title="shorten.MemoryKeygen"><tt class="xref py py-class docutils literal"><span class="pre">MemoryKeygen</span></tt></a>
+will be created with the following paramters:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="25%" />
@@ -259,11 +284,26 @@ with the following paramters:</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key_gen</strong> (<em>a MemoryGenerator or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>key_gen</strong> (<em>a MemoryKeygen or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
 generator is created (see above).</td>
 </tr>
 </tbody>
 </table>
+<dl class="method">
+<dt id="shorten.MemoryStore.get">
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>default=None</em><big>)</big><a class="headerlink" href="#shorten.MemoryStore.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the value for <tt class="xref py py-attr docutils literal"><span class="pre">key</span></tt> or <tt class="xref py py-attr docutils literal"><span class="pre">default</span></tt> if the
+key does not exist.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="shorten.MemoryStore.next_formatted_pair">
+<tt class="descname">next_formatted_pair</tt><big>(</big><big>)</big><a class="headerlink" href="#shorten.MemoryStore.next_formatted_pair" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a <tt class="xref py py-class docutils literal"><span class="pre">FormattedPair</span></tt> containing 
+attributes <cite>key</cite>, <cite>token</cite>, <cite>formatted_key</cite> and <cite>formatted_token</cite>. 
+Calling this method will always consume a key and token.</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="class">
@@ -279,8 +319,8 @@ generator is created (see above).</td>
 <dt id="shorten.RedisStore">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">RedisStore</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.RedisStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores keys, tokens and data in Redis.</p>
-<p>If <cite>key_gen</cite> is <cite>None</cite>, a <tt class="xref py py-class docutils literal"><span class="pre">RedisKeygen</span></tt> will be created 
-with the following paramters:</p>
+<p>If <cite>key_gen</cite> is <cite>None</cite>, a <tt class="xref py py-class docutils literal"><span class="pre">RedisKeygen</span> <span class="pre">&lt;shorten.RedisKeygen</span></tt> 
+will be created with the following paramters:</p>
 <table border="1" class="docutils">
 <colgroup>
 <col width="25%" />
@@ -312,7 +352,7 @@ counter value.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>counter_key</strong> &#8211; the Redis key in which to store the keygen&#8217;s
 counter value.</li>
-<li><strong>key_gen</strong> (<em>a RedisKeyGenerator or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
+<li><strong>key_gen</strong> (<em>a RedisKeyGen or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
 generator is created (see above).</li>
 <li><strong>redis_client</strong> &#8211; an open Redis connection.</li>
 </ul>
@@ -329,9 +369,10 @@ generator is created (see above).</li>
 <p class="last">Keys and tokens are always inserted with a <tt class="xref py py-class docutils literal"><span class="pre">Pipeline</span></tt>, so 
 irrevocable keys will never occur.</p>
 </div>
-<p>If <cite>pipe</cite> is given, :class:<a href="#id1"><span class="problematic" id="id2">`</span></a>KeyInsertError`s and 
-:class:<a href="#id3"><span class="problematic" id="id4">`</span></a>TokenInsertError`s will not be thrown if duplicate keys and 
-tokens exist. Instead, the nth-from-last results must be checked:</p>
+<p>If <cite>pipe</cite> is given, <tt class="xref py py-class docutils literal"><span class="pre">KeyInsertError</span></tt> and 
+<tt class="xref py py-class docutils literal"><span class="pre">TokenInsertError</span></tt> will not be thrown 
+if duplicate keys and tokens exist. Instead, the nth-from-last results 
+must be checked:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pipe</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">pipeline</span><span class="p">()</span>
 <span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">short</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;value&#39;</span><span class="p">,</span> <span class="n">pipe</span><span class="p">)</span>
 <span class="n">results</span> <span class="o">=</span> <span class="n">pipe</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
@@ -361,10 +402,11 @@ extracted from the pipeline results (see above).</td>
 <dt id="shorten.RedisStore.revoke">
 <tt class="descname">revoke</tt><big>(</big><em>token</em>, <em>pipe=None</em><big>)</big><a class="headerlink" href="#shorten.RedisStore.revoke" title="Permalink to this definition">¶</a></dt>
 <dd><p>Revokes the key associated with the given revokation token.</p>
-<p>If the token does not exist, a <tt class="xref py py-class docutils literal"><span class="pre">KeyError</span></tt> is thrown. Otherwise
-<cite>None</cite> is returned.</p>
-<p>If <cite>pipe</cite> is given, then a <tt class="xref py py-class docutils literal"><span class="pre">RevokeError</span></tt> will not be thrown
-if the key does not exist. The n-th from last result should be checked:</p>
+<p>If the token does not exist, a <tt class="xref py py-class docutils literal"><span class="pre">KeyError</span></tt> is thrown. 
+Otherwise <cite>None</cite> is returned.</p>
+<p>If <cite>pipe</cite> is given, then a <tt class="xref py py-class docutils literal"><span class="pre">RevokeError</span></tt> 
+will not be thrown if the key does not exist. The n-th from last result
+should be checked like so:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">pipe</span> <span class="o">=</span> <span class="n">redis</span><span class="o">.</span><span class="n">Pipeline</span><span class="p">()</span>
 <span class="n">store</span><span class="o">.</span><span class="n">revoke</span><span class="p">(</span><span class="n">token</span><span class="p">,</span> <span class="n">pipe</span><span class="o">=</span><span class="n">pipe</span><span class="p">)</span>
 
@@ -413,8 +455,10 @@ counter value.</li>
 <dt id="shorten.MemcacheStore">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">MemcacheStore</tt><big>(</big><em>**kwargs</em><big>)</big><a class="headerlink" href="#shorten.MemcacheStore" title="Permalink to this definition">¶</a></dt>
 <dd><p>Stores keys, tokens and data in Memcache.</p>
-<p>If <cite>key_gen</cite> is <cite>None</cite>, a <tt class="xref py py-class docutils literal"><span class="pre">MemcacheKeygen</span></tt> will be created 
-with the following paramters:</p>
+<dl class="docutils">
+<dt>If <cite>key_gen</cite> is <cite>None</cite>, a <tt class="xref py py-class docutils literal"><span class="pre">MemcacheKeygen</span></tt></dt>
+<dd>will be created with the following paramters:</dd>
+</dl>
 <table border="1" class="docutils">
 <colgroup>
 <col width="25%" />
@@ -446,7 +490,7 @@ counter value.</td>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>counter_key</strong> &#8211; the Memcache key in which to store the keygen&#8217;s
 counter value.</li>
-<li><strong>key_gen</strong> (<em>a MemcacheKeyGenerator or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
+<li><strong>key_gen</strong> (<em>a MemcacheKeyGen or None</em>) &#8211; a key generator. If <cite>None</cite>, a new key
 generator is created (see above).</li>
 <li><strong>redis_client</strong> &#8211; a Memcache client.</li>
 </ul>
@@ -478,12 +522,112 @@ exists or cannot be stored).</p>
 <dl class="class">
 <dt id="shorten.TokenGenerator">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">TokenGenerator</tt><a class="headerlink" href="#shorten.TokenGenerator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A token generator which returns the key passed to it.</p>
+</dd></dl>
 
 <dl class="class">
 <dt id="shorten.UUIDTokenGenerator">
 <em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">UUIDTokenGenerator</tt><a class="headerlink" href="#shorten.UUIDTokenGenerator" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>A token generator which returns a UUID4 (random) token.
+See <a class="reference external" href="https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_.28random.29">https://en.wikipedia.org/wiki/Universally_unique_identifier#Version_4_.28random.29</a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="formatter-objects">
+<h2>Formatter Objects<a class="headerlink" href="#formatter-objects" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="shorten.Formatter">
+<em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">Formatter</tt><a class="headerlink" href="#shorten.Formatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>A formatter is used to format the internal representation of a key or token. 
+This is useful for Redis and SQL databases, which often need to prefix keys
+and columns in order to avoid clashes.</p>
+<div class="admonition-subclassing admonition">
+<p class="first admonition-title">Subclassing</p>
+<p class="last">Subclasses should implement <tt class="docutils literal"><span class="pre">format_key(key)</span></tt> and 
+<tt class="docutils literal"><span class="pre">format_token(token)</span></tt>.</p>
+</div>
+<dl class="method">
+<dt id="shorten.Formatter.format_key">
+<tt class="descname">format_key</tt><big>(</big><em>key</em><big>)</big><a class="headerlink" href="#shorten.Formatter.format_key" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a key.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="shorten.Formatter.format_token">
+<tt class="descname">format_token</tt><big>(</big><em>token</em><big>)</big><a class="headerlink" href="#shorten.Formatter.format_token" title="Permalink to this definition">¶</a></dt>
+<dd><p>Formats a token.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="shorten.NamespacedFormatter">
+<em class="property">class </em><tt class="descclassname">shorten.</tt><tt class="descname">NamespacedFormatter</tt><big>(</big><em>namespace</em><big>)</big><a class="headerlink" href="#shorten.NamespacedFormatter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prefixes keys and tokens with <cite>namespace</cite> string.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>namespace</strong> &#8211; a string to prefix to keys and tokens.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="encoding-and-decoding">
+<h2>Encoding and Decoding<a class="headerlink" href="#encoding-and-decoding" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="shorten.key.bx_encode">
+<tt class="descclassname">shorten.key.</tt><tt class="descname">bx_encode</tt><big>(</big><em>n</em>, <em>alphabet</em><big>)</big><a class="headerlink" href="#shorten.key.bx_encode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Encodes an integer <tt class="xref py py-attr docutils literal"><span class="pre">n</span></tt> in base <tt class="docutils literal"><span class="pre">len(alphabet)</span></tt> with 
+digits in <tt class="xref py py-attr docutils literal"><span class="pre">alphabet</span></tt>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># &#39;ba&#39;</span>
+<span class="n">bx_encode</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&#39;abc&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>n</strong> &#8211; a positive integer.</li>
+<li><strong>alphabet</strong> &#8211; a 0-based iterable.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="shorten.key.bx_decode">
+<tt class="descclassname">shorten.key.</tt><tt class="descname">bx_decode</tt><big>(</big><em>string</em>, <em>alphabet</em>, <em>mapping=None</em><big>)</big><a class="headerlink" href="#shorten.key.bx_decode" title="Permalink to this definition">¶</a></dt>
+<dd><p>Transforms a string in <tt class="xref py py-attr docutils literal"><span class="pre">alphabet</span></tt> to an integer.</p>
+<p>If <tt class="xref py py-attr docutils literal"><span class="pre">mapping</span></tt> is provided, each key must map to its 
+positional value without duplicates.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s">&#39;c&#39;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+<span class="c"># 3</span>
+<span class="n">bx_decode</span><span class="p">(</span><span class="s">&#39;ba&#39;</span><span class="p">,</span> <span class="s">&#39;abc&#39;</span><span class="p">,</span> <span class="n">mapping</span><span class="p">)</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>string</strong> &#8211; a string consisting of key from <cite>alphabet</cite>.</li>
+<li><strong>alphabet</strong> &#8211; a 0-based iterable.</li>
+<li><strong>mapping</strong> &#8211; a <tt class="xref py py-class docutils literal"><span class="pre">Mapping</span></tt>. If <cite>None</cite>, 
+the inverse of <cite>alphabet</cite> is used, with values mapped
+to indices.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 </div>
 </div>
@@ -497,11 +641,13 @@ exists or cannot be stored).</p>
   <h3><a href="index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">API</a><ul>
-<li><a class="reference internal" href="#base-classes">Base Classes</a></li>
+<li><a class="reference internal" href="#store-objects">Store Objects</a></li>
 <li><a class="reference internal" href="#memory-stores">Memory Stores</a></li>
 <li><a class="reference internal" href="#redis-stores">Redis Stores</a></li>
 <li><a class="reference internal" href="#memcache-stores">Memcache Stores</a></li>
 <li><a class="reference internal" href="#token-generators">Token Generators</a></li>
+<li><a class="reference internal" href="#formatter-objects">Formatter Objects</a></li>
+<li><a class="reference internal" href="#encoding-and-decoding">Encoding and Decoding</a></li>
 </ul>
 </li>
 </ul>
