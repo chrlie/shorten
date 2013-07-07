@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from shorten import __version__
+# Set __version__ in the namespace
+execfile('shorten/version.py')
 
 try:
    from setuptools import setup
@@ -20,8 +21,8 @@ setup(
    version = __version__,
    description = 'A library for generating and storing short keys.',
 
-   requires = [
-      'redis'
+   install_requires = [
+      'redis >= 2.7.6',
    ],
 
    author = 'Charlie Liban',

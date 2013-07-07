@@ -1,17 +1,22 @@
-from . import alphabets
-from . import key
-from . import store
-from . import token
-from . import errors
-from . import formatter
+#from __future__ import absolute_import
 
-from errors import KeyInsertError, TokenInsertError, RevokeError
-from formatter import Formatter, NamespacedFormatter
-from key import BaseKeyGenerator
-from store import BaseStore, MemoryStore, MemoryKeygen, RedisStore, RedisKeygen, MemcacheStore, MemcacheKeygen
-from token import TokenGenerator, UUIDTokenGenerator 
+#rom . import alphabets
+#rom . import key
+#rom . import token
+#rom . import errors
+#rom . import formatter
 
-__version__ = '2.0.1'
+from .base import BaseStore, Pair
+from .memory_store import MemoryStore, MemoryKeygen
+from .redis_store import RedisStore, RedisKeygen
+from .memcache_store import MemcacheStore, MemcacheKeygen
+
+from .errors import KeyInsertError, TokenInsertError, RevokeError
+from .formatter import Formatter, NamespacedFormatter
+from .key import BaseKeyGenerator
+from .token import TokenGenerator, UUIDTokenGenerator 
+
+from .version import __version__
 
 stores = ('memcache', 'memory', 'redis')
 

@@ -5,9 +5,9 @@ from redis import WatchError
 
 from .base import BaseStore, Pair
 
-from ..key import BaseKeyGenerator
-from ..formatter import FormatterMixin
-from ..errors import KeyInsertError, TokenInsertError
+from .key import BaseKeyGenerator
+from .formatter import FormatterMixin
+from .errors import KeyInsertError, TokenInsertError
 
 class RedisKeygen(BaseKeyGenerator):
    """\

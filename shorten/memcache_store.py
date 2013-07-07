@@ -1,9 +1,9 @@
 from .base import BaseStore, Pair
 
-from ..lock import Lock
-from ..key import BaseKeyGenerator
-from ..formatter import FormatterMixin
-from ..errors import KeyInsertError, TokenInsertError
+from .lock import Lock
+from .key import BaseKeyGenerator
+from .formatter import FormatterMixin
+from .errors import KeyInsertError, TokenInsertError
 
 class MemcacheKeygen(BaseKeyGenerator):
    """\

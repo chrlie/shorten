@@ -21,7 +21,7 @@ def die_nicely(*args):
 
 # Reuse the same key and token
 def wrap_next_formatted_pair(store, key, token):   
-   FormattedPair = shorten.store.base.FormattedPair
+   FormattedPair = shorten.base.FormattedPair
    
    @functools.wraps(store.next_formatted_pair)
    def mock(self):

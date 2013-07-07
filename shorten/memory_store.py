@@ -1,9 +1,9 @@
 from .base import BaseStore, Pair
 
-from ..key import BaseKeyGenerator
-from ..lock import Lock
-from ..formatter import FormatterMixin
-from ..errors import KeyInsertError, TokenInsertError, RevokeError
+from .key import BaseKeyGenerator
+from .lock import Lock
+from .formatter import FormatterMixin
+from .errors import KeyInsertError, TokenInsertError, RevokeError
 
 class MemoryKeygen(BaseKeyGenerator):
    """\

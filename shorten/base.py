@@ -1,5 +1,5 @@
-from ..formatter import Formatter
-from ..token import TokenGenerator
+from .formatter import Formatter
+from .token import TokenGenerator
 
 class NamedTuple(object):
    """\
