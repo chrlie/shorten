@@ -124,7 +124,7 @@ class BaseKeyGenerator(Iterable):
    """
   
    def __init__(self, alphabet=None, min_length=None, start=None):           
-      min_length = max(0, min_length)
+      min_length = max(1, min_length)
       alphabet = alphabet or alphabets.DEFAULT
 
       if start is None:
