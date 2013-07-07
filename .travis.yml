@@ -1,17 +1,30 @@
 language: python
 python:
-   - "2.6"
-   - "2.7"
-   - "3.2"
-   - "3.3"
+   - 2.6
+   - 2.7
+   - 3.2
+   - 3.3
+
+#env:
+#   - REQUIREMENTS=no_gevent
+#   - REQUIREMENTS=gevent
 
 services:
    - memcache
    - redis
 
+# TODO: Python 3 doesn't support gevent
+#matrix:
+#   exclude:
+#      - python: 3.2
+#        env: 
+#      - python: 3.3
+#        env: 
+
 # Make sure the gevent, python and memcached development libraries are installed
 before_install: "sudo apt-get install python-dev libevent-dev libmemcached-dev"
-install: "pip install -r requirements.txt"
+install: "pip install redis pylibmc nose gevent greenlet"
+
 script: "nosetests tests"
 
 notifications:
