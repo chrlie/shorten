@@ -9,6 +9,8 @@ services:
    - memcache
    - redis
 
+# Make sure the gevent, python and memcached development libraries are installed
+before_install: "sudo apt-get install python-dev libevent-dev libmemcached-dev"
 install: "pip install -r requirements.txt"
 script: "nosetests tests"
 
