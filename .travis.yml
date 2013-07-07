@@ -9,5 +9,8 @@ services:
    - memcache
    - redis
 
-install: "pip install -r requirements.txt --use-mirrors"
+install: "pip install -r requirements.txt"
 script: "nosetests tests"
+
+notifications:
+   email: false

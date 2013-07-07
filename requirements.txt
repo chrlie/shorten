@@ -1,5 +1,6 @@
 redis
 pylibmc
-gevent == 0.13
+greenlet
+gevent
 sphinx
 nose
