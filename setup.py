@@ -21,6 +21,7 @@ setup(
    description = 'A library for generating and storing short keys.',
 
    requires = [
+      'redis'
    ],
 
    author = 'Charlie Liban',

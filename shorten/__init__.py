@@ -1,7 +1,9 @@
-import alphabets
-import key
-import store
-import token
+from . import alphabets
+from . import key
+from . import store
+from . import token
+from . import errors
+from . import formatter
 
 from errors import KeyInsertError, TokenInsertError, RevokeError
 from formatter import Formatter, NamespacedFormatter
@@ -9,7 +11,7 @@ from key import BaseKeyGenerator
 from store import BaseStore, MemoryStore, MemoryKeygen, RedisStore, RedisKeygen, MemcacheStore, MemcacheKeygen
 from token import TokenGenerator, UUIDTokenGenerator 
 
-__version__ = '2.0.0'
+__version__ = '2.0.1'
 
 stores = ('memcache', 'memory', 'redis')
 
