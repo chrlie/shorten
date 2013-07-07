@@ -1,5 +1,9 @@
-shorten
+Shorten
 =======
+
+.. image:: https://travis-ci.org/tyrannosaur/shorten.png?branch=master
+   :alt: Build status
+   :target: https://travis-ci.org/tyrannosaur/shorten
 
 Shorten is a `MIT licensed <http://opensource.org/licenses/MIT>`_ Python library
 for storing your data with automatically generated keys. Use your choice of
