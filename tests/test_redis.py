@@ -85,7 +85,7 @@ class TestRedisStore(BaseStoreTest, GeventTestMixin):
       key, token = store.insert('aardvark')      
 
       formatted_key = store.formatter.format_key(key)    
-      redis_val = self.redis.get(formatted_key)
+      redis_val = self.redis.hget(formatted_key, 'value')
 
       assert redis_val == 'aardvark'   
 

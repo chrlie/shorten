@@ -7,12 +7,12 @@ from ..errors import KeyInsertError, TokenInsertError, RevokeError
 
 class MemoryKeygen(BaseKeyGenerator):
    """\
-   Generates keys in-memory.
+   Creates keys in-memory. Keys are always generated in increasing order.
    """
  
    def __iter__(self):
       """\
-      Increments the in-memory counter immediately and returns a new key.
+      Increments the in-memory counter and yields a new key.      
       """
 
       lock = Lock()
@@ -29,7 +29,21 @@ class MemoryKeygen(BaseKeyGenerator):
 
 class MemoryStore(BaseStore, FormatterMixin):
    """\
-   Stores formatted short keys and their values in memory.
+   Stores keys, tokens and data in memory.
+
+   If `key_gen` is `None`, a :class:`MemoryKeygen` will be created 
+   with the following paramters:
+
+   =================  ===================================================
+   `alphabet`         an iterable of characters in an alphabet.      
+   `min_length`       the minimum key length to begin generating keys at.
+
+   `start`            the number to start the keygen's counter at.
+   =================  ===================================================
+
+   :param key_gen:         a key generator. If `None`, a new key
+                           generator is created (see above).
+   :type key_gen:          a MemoryGenerator or None
    """
   
    def __init__(self, **kwargs):
@@ -38,11 +52,12 @@ class MemoryStore(BaseStore, FormatterMixin):
       start = kwargs.pop('start', None)      
       key_gen = kwargs.get('key_gen', None)
 
+      # Provide a reasonable default keygen
       if key_gen is None:
-         key_gen = MemoryKeygen(alphabet=alphabet, min_length=min_length, start=start)
-         kwargs['key_gen'] = key_gen
+         key_gen = MemoryKeygen(alphabet=alphabet, min_length=min_length, 
+            start=start)
 
-      super(MemoryStore, self).__init__(**kwargs)
+      super(MemoryStore, self).__init__(key_gen=key_gen, **kwargs)
 
       self._data = {}
       self._tokens = {}  
@@ -52,15 +67,14 @@ class MemoryStore(BaseStore, FormatterMixin):
 
       # To be consistent, the `has_key` and `has_token` methods are used
       if self.has_key(key):
-         raise KeyInsertError(key)
+         raise KeyInsertError(key, 'key exists')
 
       if self.has_token(token):
-         raise TokenInsertError(token)
+         raise TokenInsertError(token, 'token exists')
 
-      self._data[formatted_key] = val
+      self._data[formatted_key] = (val, token)
       self._tokens[formatted_token] = key
 
-      # A `Pair` is a tuple, so this is consistent with versions < 2
       return Pair(key, token)
 
    def revoke(self, token):
@@ -69,7 +83,7 @@ class MemoryStore(BaseStore, FormatterMixin):
       try:
          key = self._tokens[formatted_token]
       except KeyError:
-         raise RevokeError('revokation token not found')
+         raise RevokeError(token, 'token not found')
         
       formatted_key = self.format_key(key)
 
@@ -78,7 +92,7 @@ class MemoryStore(BaseStore, FormatterMixin):
 
    def get_value(self, key):
       key = self.format_key(key)
-      return self._data[key]
+      return self._data[key][0]
 
    def has_key(self, key):
       return self.format_key(key) in self._data
@@ -86,9 +100,18 @@ class MemoryStore(BaseStore, FormatterMixin):
    def has_token(self, token):      
       return self.format_token(token) in self._tokens
 
+   def get_token(self, key):
+      key = self.format_key(key)
+      return self._data[key][1]
+
    def __iter__(self):
+      """\
+      Iterates over all keys.
+      """
       return iter(self._data)
 
    def __len__(self):
+      """\
+      The number of keys in the store.
+      """
       return len(self._data)       
-

@@ -7,7 +7,7 @@ from ..errors import KeyInsertError, TokenInsertError
 
 class MemcacheKeygen(BaseKeyGenerator):
    """\
-   Generates keys in memcache.
+   Creates keys in-memory. Keys are always generated in increasing order.
    """
  
    def __init__(self, memcache_client=None, counter_key=None, **kwargs):
@@ -41,7 +41,30 @@ class MemcacheKeygen(BaseKeyGenerator):
 
 class MemcacheStore(BaseStore, FormatterMixin):
    """\
-   Stores formatted short keys and their values in memory.
+   Stores keys, tokens and data in Memcache. 
+
+   If `key_gen` is `None`, a :class:`MemcacheKeygen` will be created 
+   with the following paramters:
+
+   =================  ===================================================
+   `alphabet`         an iterable of characters in an alphabet.      
+   `min_length`       the minimum key length to begin generating keys at.
+
+   `start`            the number to start the keygen's counter at.
+
+   `counter_key`      the Memcache key in which to store the keygen's
+                      counter value.
+
+   `memcache_client`  a Memcache client.
+   =================  ===================================================
+
+   :param counter_key:     the Memcache key in which to store the keygen's
+                           counter value.
+   :param key_gen:         a key generator. If `None`, a new key
+                           generator is created (see above).
+
+   :param redis_client:    a Memcache client.
+   :type key_gen:          a MemcacheKeyGenerator or None
    """
  
    def __init__(self, **kwargs):
@@ -55,32 +78,21 @@ class MemcacheStore(BaseStore, FormatterMixin):
       # Create a reasonable keygen if it isn't provided
       if key_gen is None:
          key_gen = MemcacheKeygen(
-               memcache_client=memcache_client, alphabet=alphabet, counter_key=counter_key, 
-               min_length=min_length, start=start)
-         kwargs['key_gen'] = key_gen
+            memcache_client=memcache_client, 
+            alphabet=alphabet, 
+            counter_key=counter_key, 
+            min_length=min_length, 
+            start=start)
 
       if memcache_client is None:
          raise ValueError('a memcache client is required')
 
-      super(MemcacheStore, self).__init__(**kwargs)
+      super(MemcacheStore, self).__init__(key_gen=key_gen, **kwargs)
       self._mc = memcache_client
 
    def insert(self, val):     
       """\
-      Insert a val and return a :class:`Pair <Pair>`, which
-      is a :class:`tuple`. It contains a key and token (in
-      that order) as well `key` and `token` attributes.
-      
-      ::
-
-         pair = store.insert('aardvark')
-         key, token = pair
-
-         # True
-         pair.key == pair[0] == key
-
-         # True
-         pair.token == pair[1] == token
+      Inserts a value and returns a :class:`Pair <Pair>`.
 
       If the generated key exists or memcache cannot store it, a 
       :class:`KeyInsertError <KeyInsertError>` is raised (or a
@@ -98,7 +110,7 @@ class MemcacheStore(BaseStore, FormatterMixin):
 
       # Memcache is down or read-only
 
-      if not self._mc.add(formatted_key, val):
+      if not self._mc.add(formatted_key, (val, token)):
          raise KeyInsertError(key, 'key could not be stored')
 
       if not self._mc.add(formatted_token, key):
@@ -112,7 +124,7 @@ class MemcacheStore(BaseStore, FormatterMixin):
       try:
          key = self._mc.get(formatted_token)
       except KeyError:
-         raise RevokeError('revokation token not found')
+         raise RevokeError('token not found')
         
       formatted_key = self.format_key(key)
 
@@ -126,6 +138,7 @@ class MemcacheStore(BaseStore, FormatterMixin):
       if val is None:
          raise KeyError(key)
 
+      val = val[0]
       return val
 
    def has_key(self, key):
@@ -135,3 +148,13 @@ class MemcacheStore(BaseStore, FormatterMixin):
    def has_token(self, token):      
       token = self.format_token(token)
       return self._mc.get(token) is not None
+
+   def get_token(self, key):
+      key = self.format_key(key)
+      val = self._mc.get(key)
+      
+      if val is None:
+         raise KeyError(token)
+
+      token = val[1]
+      return token      

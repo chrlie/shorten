@@ -6,42 +6,50 @@
 
 ===================
 
-Shorten is a key-value store with auto-generating keys. Use it for a private 
-URL shortener.
+Shorten is a `MIT licensed <http://opensource.org/licenses/MIT>`_ library for storing your data 
+with auto-generated short keys. Use an in-memory, Redis or memcache backend with Shorten.
 
-I made this library after finding a whole bunch of snippets like this:
+I made this library after being unable to find a satsifactory URL shortening
+library. Shorten increments a counter but without clever tricks and obfiscuated
+schemes that produce unmaintainable code.
 
-::
-
-   def encode(
-
-Or even worse, some clever enumeration through bit-shifting
+Replace this:
 
 ::
 
+   import random
 
-Or even *worse*, schemes whose keys are dependent on the input data!
-   
+   ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456790-_'
+   BASE = len(ALPHABET)
+   ALPHABET = random.shuffle(ALPHABET)
+
+   def encode(n):
+      digits = []
+
+      while n > 0:
+         digits.append(ALPHABET[n % BASE])
+         n = n // BASE
+
+      return ''.join(digits)
 
 
-Some stores require external libraries.
-
-Contents:
+User Guide
+----------
 
 .. toctree::
    :maxdepth: 2
 
-.. autofunction:: shorten.make_store
+   user/intro
+   user/advanced
+   user/examples
 
-.. automodule:: shorten.store.redis
-   :members:
+API Documentation
+-----------------
 
-# .. automodule:: shorten.key
-#   :members:
+.. toctree::
+   :maxdepth: 2
 
-# .. automodule:: shorten.token
-#   :members:
-   
+   api
 
 Indices and tables
 ==================

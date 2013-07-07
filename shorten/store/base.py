@@ -52,21 +52,24 @@ class Pair(NamedTuple('key', 'token')):
    """\
    A named tuple that contains a key and token.
    """
+
    pass
 
 class FormattedPair(NamedTuple('key', 'token', 'formatted_key', 'formatted_token')):
    """\
    The same as Pair, but also containing the formatted key and token.
    """
+
    pass
 
 class BaseStore(object):
    """\
    A key-value store that has auto-generated keys. Deletion is through
-   `token`s, which are generated along with keys - a key cannot be
+   `tokens`, which are generated along with keys. A `key` cannot be
    used to delete a value (unless they are the same value).
    
    ::
+
       s = Store()
       key, token = s.insert('aardvark')
 
@@ -79,11 +82,14 @@ class BaseStore(object):
       # None
       s.get(key, None)
 
+
    Because they are closely associated, keys and tokens are returned 
-   in a :class:`Pair <Pair>`. `Pair`s are tuples with named attributes
-   `key` and `token`.
+   in a :class:`Pair <Pair>`. A :class:`Pair <Pair>` is a named :class:`tuple`
+   containing a `key` and `token` (in that order) as well `key` and `token` 
+   attributes.
 
    ::
+
       s = Store()
       pair = s.insert('aardvark')
 
@@ -93,13 +99,25 @@ class BaseStore(object):
       # Removes 'aardvark'
       del s[pair.token]
 
-   Unlike Python :class:`dict`s, a :class:`Store` allows insertion but
-   no modification of its values. Some stores may provide :meth:`__len__` 
-   and :meth:`__iter__` methods if the underlying storage mechanism makes
-   it feasible.
+      pair = store.insert('bonobo')
+      key, token = pair
+
+      # True
+      pair.key == pair[0] == key
+
+      # True
+      pair.token == pair[1] == token
+
+
+   Unlike a Python :class:`dict`, a :class:`BaseStore <BaseStore>` allows 
+   insertion but no modification of its values. Some stores may provide 
+   :meth:`__len__`  and :meth:`__iter__` methods if the underlying storage 
+   mechanism makes it feasible.
 
    :param key_gen:        a :class:`Keygen` that generates unique keys.
-   :param formatter:      a :class:`Formatter`s used to encode keys.
+
+   :param formatter:      a :class:`Formatter` used to transform keys and
+                          tokens for storage in a backend.
 
    :param token_gen:      an object with a :meth:`create_token` method
                           that returns unique revokation tokens.            
@@ -125,15 +143,9 @@ class BaseStore(object):
 
    def next_formatted_pair(self):
       """\
-      Returns a :class:`FormattedPair <FormattedPair>` containing attributes `key`, `token`, 
-      `formatted_key` and `formatted_token`. `FormattedPair`s can be destructured like
-      tuples:
-
-      ::
-
-         store = Store()
-         key, token, formatted_key, formatted_token = store.next_pair()
-
+      Returns a :class:`FormattedPair <FormattedPair>` containing attributes 
+      `key`, `token`, `formatted_key` and `formatted_token`. Calling this method 
+      will always consume a key and token.
       """
 
       key = self.key_gen.next()
@@ -145,9 +157,10 @@ class BaseStore(object):
 
    def get(self, key, default=None):
       """\
-      Get the value for :attr:`key` or attr:`default` if the
+      Get the value for :attr:`key` or :attr:`default` if the
       key does not exist.
       """
+
       try:
          return self[key]
       except KeyError:
@@ -172,27 +185,26 @@ class BaseStore(object):
          # True
          pair.token == pair[1] == token
 
+
       If the generated key exists or the cannot be stored, a
       :class:`KeyInsertError` is raised (or a :class:`TokenInsertError`
       for tokens).
 
       ::
-         
-         conn = redis.Redis()
-         store = make_store('redis', redis=conn)
 
          try:
             store.insert('bonobo')
          except (KeyInsertError, TokenInsertError):
+            print('Cannot insert')
             
-
       """
+
       raise NotImplementedError
 
    def revoke(self, token):
       """\
-      Revoke the :attr:`token`. Raises :class:`KeyError` if the token 
-      is not found and :class:`RevokeError` if the underlying storage
+      Revokes the :attr:`token`. A :class:`RevokeError <RevokeError>` is 
+      raised if the token is not found or the underlying storage
       cannot complete the revokation.
 
       ::
@@ -200,18 +212,20 @@ class BaseStore(object):
          try:
             store.revoke(token)
             print('Revoked!')
-         except (KeyError, RevokeError):
+         except RevokeError:
             print('Could not revoke')
 
       """
+
       raise NotImplementedError
 
    def get_value(self, key):
       """\
-      Get the value for :attr:`key` or raise a :class:`KeyError`
+      Gets the value for :attr:`key` or raise a :class:`KeyError <KeyError>`
       if it doesn't exist.
       :meth:`get` and `store[key]` will call this method.
       """
+
       raise NotImplementedError
 
    def has_key(self, key):            

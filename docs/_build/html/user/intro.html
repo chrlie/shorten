@@ -1,0 +1,386 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Introduction &mdash; shorten 1.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="shorten 1.1.0 documentation" href="../index.html" />
+    <link rel="next" title="&lt;no title&gt;" href="advanced.html" />
+    <link rel="prev" title="User Guide" href="../index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="advanced.html" title="&lt;no title&gt;"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="../index.html" title="User Guide"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../index.html">shorten 1.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="introduction">
+<span id="id1"></span><h1>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h1>
+<p>Shorten is based around a <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>-like object called a <cite>store</cite>.
+Stores allow insertion, deletion and lookup of data through an interface similar to a Python <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt>, the primary difference being that store <cite>keys</cite>
+are generated automatically by a <cite>key generator</cite> (or <cite>keygen</cite>).</p>
+<p>The corresponding usage between a Python <tt class="xref py py-class docutils literal"><span class="pre">dict</span></tt> and store is illustrated
+below:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="58%" />
+<col width="42%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">store</th>
+<th class="head">dict</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">key,</span> <span class="pre">token</span> <span class="pre">=</span> <span class="pre">store.insert(val)</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">dict[key]</span> <span class="pre">=</span> <span class="pre">val</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">del</span> <span class="pre">store[token]</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">del</span> <span class="pre">dict[key]</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">key</span> <span class="pre">in</span> <span class="pre">store</span></tt></td>
+<td><tt class="docutils literal"><span class="pre">key</span> <span class="pre">in</span> <span class="pre">dict</span></tt></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">for</span> <span class="pre">key</span> <span class="pre">in</span> <span class="pre">iter(store)</span></tt> <a class="footnote-reference" href="#f1" id="id2">[1]</a></td>
+<td><tt class="docutils literal"><span class="pre">for</span> <span class="pre">key</span> <span class="pre">in</span> <span class="pre">iter(dict)</span></tt></td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">store.has_token(token)</span></tt></td>
+<td>no equivalent</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">store.get_token(key)</span></tt></td>
+<td>no equivalent</td>
+</tr>
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">len(store)</span></tt> <a class="footnote-reference" href="#f1" id="id3">[1]</a></td>
+<td><tt class="docutils literal"><span class="pre">len(dict)</span></tt></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="f1" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label">[1]</td><td><em>(<a class="fn-backref" href="#id2">1</a>, <a class="fn-backref" href="#id3">2</a>)</em> This functionality may be missing from some stores due to
+inefficiency or thread safety.</td></tr>
+</tbody>
+</table>
+<p>When data is inserted into a store a <tt class="xref py py-class docutils literal"><span class="pre">Pair</span></tt> is returned. Pairs
+are tuples containing <cite>key</cite> and <cite>token</cite> attributes. Keys are used to lookup
+data, while tokens are used to delete data. Tokens are generated from
+<cite>token generators</cite>, similar to how keys are generated from <cite>key generators</cite>.</p>
+<div class="section" id="making-a-store">
+<h2>Making a Store<a class="headerlink" href="#making-a-store" title="Permalink to this headline">¶</a></h2>
+<p>There are three built-in store types:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="../api.html#shorten.MemoryStore" title="shorten.MemoryStore"><tt class="xref py py-class docutils literal"><span class="pre">shorten.MemoryStore</span></tt></a></td>
+<td>native Python.</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="../api.html#shorten.MemcacheStore" title="shorten.MemcacheStore"><tt class="xref py py-class docutils literal"><span class="pre">shorten.MemcacheStore</span></tt></a></td>
+<td>requires <tt class="docutils literal"><span class="pre">memcached</span></tt> or other Memcache server.</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="../api.html#shorten.RedisStore" title="shorten.RedisStore"><tt class="xref py py-class docutils literal"><span class="pre">shorten.RedisStore</span></tt></a></td>
+<td>requires a Redis server.</td>
+</tr>
+</tbody>
+</table>
+<p>All stores are available at the module level and do not depend on any 3rd-party
+Python libraries.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">shorten</span>
+<span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">MemoryStore</span><span class="p">,</span> <span class="n">MemcacheStore</span><span class="p">,</span> <span class="n">RedisStore</span>
+</pre></div>
+</div>
+<p>A <tt class="xref py py-class docutils literal"><span class="pre">MemoryStore</span></tt> does not have any dependencies, so it will
+be used for the remaining examples.</p>
+</div>
+<div class="section" id="inserting-values">
+<h2>Inserting Values<a class="headerlink" href="#inserting-values" title="Permalink to this headline">¶</a></h2>
+<p>Use <tt class="xref py py-meth docutils literal"><span class="pre">insert()</span></tt> to insert values. A <tt class="xref py py-class docutils literal"><span class="pre">Pair</span></tt> is returned, which can
+destructured like a tuple.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">MemoryStore</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">MemoryStore</span><span class="p">()</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+
+<span class="c"># &#39;aardvark&#39;</span>
+<span class="n">store</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="c"># True</span>
+<span class="n">key</span> <span class="ow">in</span> <span class="n">store</span>
+
+<span class="n">pair</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;bonobo&#39;</span><span class="p">)</span>
+
+<span class="c"># Pair(key=&#39;0&#39;, token=&#39;0&#39;)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="revoking-keys">
+<h2>Revoking Keys<a class="headerlink" href="#revoking-keys" title="Permalink to this headline">¶</a></h2>
+<p>After insertion, keys can be revoked, which will remove the key and its
+value from the store.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">MemoryStore</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">MemoryStore</span><span class="p">()</span>
+<span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+
+<span class="k">del</span> <span class="n">store</span><span class="p">[</span><span class="n">token</span><span class="p">]</span>
+
+<span class="c"># False</span>
+<span class="n">key</span> <span class="ow">in</span> <span class="n">store</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="customizing-key-generation">
+<h2>Customizing Key Generation<a class="headerlink" href="#customizing-key-generation" title="Permalink to this headline">¶</a></h2>
+<p>A store&#8217;s keys are generated with a <tt class="xref py py-class docutils literal"><span class="pre">KeyGenerator</span></tt>.
+The default key generators use a counter to increment keys, then convert that
+number to a string in an alphabet.</p>
+<p>For example, hex keys can be generated by creating an iterable with the digits
+0 to 9 and the letters a to f, then passing it to the <cite>alphabet</cite> parameter:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">MemoryStore</span>
+
+<span class="n">hex_alphabet</span> <span class="o">=</span> <span class="s">&#39;0123456789abcdef&#39;</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">MemoryStore</span><span class="p">(</span><span class="n">alphabet</span><span class="o">=</span><span class="n">hex_alphabet</span><span class="p">)</span>
+
+<span class="c"># &#39;0&#39;</span>
+<span class="c"># &#39;1&#39;</span>
+<span class="c"># &#39;2&#39;</span>
+<span class="c"># &#39;3&#39;</span>
+<span class="c"># &#39;4&#39;</span>
+<span class="c"># &#39;5&#39;</span>
+<span class="c"># &#39;6&#39;</span>
+<span class="c"># &#39;7&#39;</span>
+<span class="c"># &#39;9&#39;</span>
+<span class="c"># &#39;a&#39;</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">10</span><span class="p">):</span>
+   <span class="n">pair</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+   <span class="k">print</span><span class="p">(</span><span class="n">pair</span><span class="o">.</span><span class="n">key</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Alphabets can be any iterable, as long as each item is not contained within
+any other item. For instance, <tt class="docutils literal"><span class="pre">('00',</span> <span class="pre">'0',</span> <span class="pre">'1')</span></tt> would be an ambiguous
+alphabet, since <tt class="docutils literal"><span class="pre">00</span></tt> could be interpreted as two numbers.</p>
+<p>Keys of a minimum length or starting at a certain <em>unencoded</em> value can be
+generated by specifying <cite>min_length</cite> or <cite>start</cite>.</p>
+<div class="code python highlight-python"><pre>from shorten import MemoryStore
+
+emoticons = (':)', ':(', ':D', ';)', ';(', 'D:', ':o', ':\')
+emote_store = MemoryStore(alphabet=emoticons, start=12)
+
+key, token = emote_store.insert('aardvark')
+
+# ':(:D'
+key</pre>
+</div>
+<p>Something</p>
+<div class="admonition-randomized-alphabets admonition">
+<p class="first admonition-title">Randomized Alphabets</p>
+<p>Shuffling your alphabet produces a random-looking key every time, but the
+order can easily be reconstructed from frequency counting and
+<a class="reference external" href="https://en.wikipedia.org/wiki/Benford's_law">Benford&#8217;s law</a>.</p>
+<p class="last"><strong>Never</strong> use short URLs to hide your data - use UUIDs or authentication
+instead.</p>
+</div>
+</div>
+<div class="section" id="formatters">
+<h2>Formatters<a class="headerlink" href="#formatters" title="Permalink to this headline">¶</a></h2>
+<p>A <tt class="xref py py-class docutils literal"><span class="pre">Formatter</span></tt> is used to format the internal representation
+of a  key or token. This is useful for Redis and SQL databases, which often
+need to prefix keys and columns in order to avoid clashes.</p>
+<p>Any class or mixin with methods <tt class="xref py py-meth docutils literal"><span class="pre">format_token(self,</span> <span class="pre">token)()</span></tt> and
+<tt class="xref py py-meth docutils literal"><span class="pre">format_key(self,</span> <span class="pre">key)()</span></tt> can be used.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">redis</span>
+<span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">RedisStore</span>
+
+<span class="k">class</span> <span class="nc">Formatter</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+   <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">namespace</span><span class="p">):</span>
+      <span class="bp">self</span><span class="o">.</span><span class="n">ns</span> <span class="o">=</span> <span class="n">namespace</span>
+
+   <span class="k">def</span> <span class="nf">format_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&#39;{ns}:keys:{key}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ns</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">)</span>
+
+   <span class="k">def</span> <span class="nf">format_token</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">token</span><span class="p">):</span>
+      <span class="k">return</span> <span class="s">&#39;{ns}:tokens:{token}&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">ns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ns</span><span class="p">,</span> <span class="n">token</span><span class="o">=</span><span class="n">token</span><span class="p">)</span>
+
+<span class="n">formatter</span> <span class="o">=</span> <span class="n">Formatter</span><span class="p">(</span><span class="s">&#39;testing&#39;</span><span class="p">)</span>
+
+<span class="n">store</span> <span class="o">=</span> <span class="n">RedisStore</span><span class="p">(</span><span class="n">redis_client</span><span class="o">=</span><span class="n">redis</span><span class="p">,</span>
+   <span class="n">counter_key</span> <span class="o">=</span> <span class="s">&#39;testing:counter_key&#39;</span><span class="p">,</span>
+   <span class="n">formatter</span><span class="o">=</span><span class="n">formatter</span><span class="p">,</span>
+   <span class="n">alphabet</span><span class="o">=</span><span class="n">hex_alphabet</span><span class="p">,</span>
+   <span class="n">start</span><span class="o">=</span><span class="mi">255</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The returned key and token are not formatted, since formatting is
+for intended for internal use.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">key</span><span class="p">,</span> <span class="n">token</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;aardvark&#39;</span><span class="p">)</span>
+
+<span class="c"># &#39;ff&#39;</span>
+<span class="n">key</span>
+
+<span class="c"># &#39;ff&#39;</span>
+<span class="n">token</span>
+
+<span class="c"># &#39;aardvark&#39;</span>
+<span class="n">store</span><span class="p">[</span><span class="s">&#39;ff&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>However, the value <em>is</em> inserted into Redis with a formatted key.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># &#39;aardvark&#39;</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;testing:keys:ff&#39;</span><span class="p">)</span>
+
+<span class="c"># &#39;ff&#39;</span>
+<span class="n">redis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&#39;testing:tokens:ff&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Introduction</a><ul>
+<li><a class="reference internal" href="#making-a-store">Making a Store</a></li>
+<li><a class="reference internal" href="#inserting-values">Inserting Values</a></li>
+<li><a class="reference internal" href="#revoking-keys">Revoking Keys</a></li>
+<li><a class="reference internal" href="#customizing-key-generation">Customizing Key Generation</a></li>
+<li><a class="reference internal" href="#formatters">Formatters</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">User Guide</a></li>
+      <li>Next: <a href="advanced.html" title="next chapter">&lt;no title&gt;</a></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../_sources/user/intro.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy; Copyright 2013, Charlie Liban.
+    </div>
+    <a href="https://github.com/tyrannosaur/shorten" class="github">
+        <img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub"  class="github"/>
+    </a>
+    <script type="text/javascript">
+    /* <![CDATA[ */
+        (function() {
+            var s = document.createElement('script'), t = document.getElementsByTagName('script')[0];
+            s.type = 'text/javascript';
+            s.async = true;
+            s.src = 'http://api.flattr.com/js/0.6/load.js?mode=auto';
+            t.parentNode.insertBefore(s, t);
+        })();
+    /* ]]> */
+    </script>
+        <script type="text/javascript">
+    setTimeout(function(){var a=document.createElement("script");
+    var b=document.getElementsByTagName("script")[0];
+    a.src=document.location.protocol+"//dnn506yrbagrg.cloudfront.net/pages/scripts/0013/7219.js?"+Math.floor(new Date().getTime()/3600000);
+    a.async=true;a.type="text/javascript";b.parentNode.insertBefore(a,b)}, 1);
+    </script>
+
+    <script type="text/javascript">
+        new HelloBar(36402,48802);
+    </script>
+
+
+    <script type="text/javascript">
+
+      var _gaq = _gaq || [];
+      _gaq.push(['_setAccount', 'UA-8742933-11']);
+      _gaq.push(['_setDomainName', 'none']);
+      _gaq.push(['_setAllowLinker', true]);
+      _gaq.push(['_trackPageview']);
+
+      (function() {
+        var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+        ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+        var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+      })();
+
+    </script>
+
+    <script type="text/javascript">
+      (function() {
+        var t   = document.createElement('script');
+        t.type  = 'text/javascript';
+        t.async = true;
+        t.id    = 'gauges-tracker';
+        t.setAttribute('data-site-id',
+                       '4ddc27f6613f5d186d000007');
+        t.src = '//secure.gaug.es/track.js';
+        var s = document.getElementsByTagName('script')[0];
+        s.parentNode.insertBefore(t, s);
+      })();
+    </script>
+  </body>
+</html>

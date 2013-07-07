@@ -3,25 +3,53 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to shorten's documentation!
-===================================
 
-Contents:
+===================
+
+Shorten is a `MIT licensed <http://opensource.org/licenses/MIT>`_ library for storing your data 
+with auto-generated short keys. Use an in-memory, Redis or memcache backend with Shorten.
+
+I made this library after being unable to find a satsifactory URL shortening
+library. Shorten increments a counter but without clever tricks and obfiscuated
+schemes that produce unmaintainable code.
+
+Replace this:
+
+::
+
+   import random
+
+   ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456790-_'
+   BASE = len(ALPHABET)
+   ALPHABET = random.shuffle(ALPHABET)
+
+   def encode(n):
+      digits = []
+
+      while n > 0:
+         digits.append(ALPHABET[n % BASE])
+         n = n // BASE
+
+      return ''.join(digits)
+
+
+User Guide
+----------
 
 .. toctree::
    :maxdepth: 2
 
-.. autofunction:: shorten.make_store
+   user/intro
+   user/advanced
+   user/examples
 
-.. automodule:: shorten.store.redis
-   :members:
+API Documentation
+-----------------
 
-# .. automodule:: shorten.key
-#   :members:
+.. toctree::
+   :maxdepth: 2
 
-# .. automodule:: shorten.token
-#   :members:
-   
+   api
 
 Indices and tables
 ==================

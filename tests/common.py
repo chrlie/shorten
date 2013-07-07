@@ -291,3 +291,10 @@ class BaseStoreTest(object):
       assert bad_key not in store
       assert not store.has_key(bad_key)
 
+   def test_get_token(self):
+      store = self.get_store()
+      key, token = store.insert('aardvark')
+
+      found_token = store.get_token(key)
+      
+      assert token == found_token

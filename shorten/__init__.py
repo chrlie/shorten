@@ -1,19 +1,25 @@
+import alphabets
 import key
-import token
 import store
+import token
 
+from errors import KeyInsertError, TokenInsertError, RevokeError
+from formatter import Formatter
+from key import BaseKeyGenerator
 from store import BaseStore, MemoryStore, MemoryKeygen, RedisStore, RedisKeygen, MemcacheStore, MemcacheKeygen
 from token import TokenGenerator, UUIDTokenGenerator 
-from formatter import Formatter
-from errors import KeyInsertError, TokenInsertError, RevokeError
 
-__version__ = '2.0.0'
+__version__ = '2.0.0d0'
 
 stores = ('memcache', 'memory', 'redis')
 
 def make_store(name, min_length=4, **kwargs):
    """\
    Creates a store with a reasonable keygen.
+
+   .. deprecated::
+
+
 
    * memory - data and keys are created and stored in memory. Keys are allocated and
               returned in increasing order.

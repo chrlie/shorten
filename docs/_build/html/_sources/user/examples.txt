@@ -1,0 +1,77 @@
+Examples
+========
+
+
+
+URL Shortening Service
+----------------------
+
+Imitate goo.gl, bit.ly, tw.tr and countless other URL shortening
+services in under a hundred lines of code.
+
+::
+
+   from rfc3987 import parse
+   from flask import Flask, jsonify as _jsonify
+
+   app = Flask(__name__)
+
+   def jsonify(obj, status_code=200):
+      obj['status'] = 'error' if 'error' in obj else 'okay'
+      res = _jsonify(obj)
+      res.status_code = status_code
+      return res
+
+   @app.route('/', methods=['POST'])
+   def shorten():
+      uri = request.body()
+      parsed_uri = parse(url, rule='URI_reference')
+
+      if parsed_uri:
+         key, token = store.insert(uri)
+
+         url = url_for('resolve', key=key, _external=True)
+         revoke = url_for('revoke', token=token, _external=True)
+         return jsonify({'url': url, 'revoke': revoke})
+      else:
+         return jsonify({'error': 'invalid url'}, 400)
+
+   @app.route('/<key>', methods=['GET'])
+   def resolve(key):
+      try:
+         uri = store[key]
+         return redirect(iri_to_uri(uri))
+      except KeyError as e:
+         return jsonify({'error': 'url not found'}, 400)
+   
+Running with gunicorn 
+
+
+Flask Extension
+---------------
+
+It's often useful to have a short URL provided with a normal URL.
+
+The extension
+
+::
+
+   class ShortURL(object):
+      def __init__(self, app=None):
+         self.app = app
+         if app is not None:
+            self.init_app(app)
+
+      def init_app(self, app):
+         pass
+
+      def teardown
+         pass
+
+Here's how we'd integrate it into the application
+
+::
+
+   @app.route('/post', methods=['POST'])
+   def new_post():
+      context.

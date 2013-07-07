@@ -10,14 +10,90 @@ threadsafe nor multiprocess safe.
 Installation
 ------------
 
-Install with pip: ``pip install shorten``
-
-If you want to run the tests, ensure ``nose``, ``redis`` and ``gevent``
-are installed with ``pip install nose redis gevent``, then:
+Install with pip:
 
 .. code:: shell
 
-    nosetests tests.py -v
+   $ pip install shorten
+
+If you want to run the tests, install the requirements in ``requirements.txt``:
+
+.. code:: shell
+
+   $ virtualenv --no-site-packages .python && source .python/bin/activate
+   $ pip install -r requirements.txt
+
+A Redis server, memcache server and the ``memcached`` development libraries are 
+also required. Redis, memcache and gevent tests can be skipped by passing
+``redis``, ``gevent`` or ``memcache`` to nose:
+
+.. code:: shell
+
+   $ nosetests tests -v -a !redis,!gevent,!memcache
+
+Documentation
+-------------
+
+Full documentation is available at http://shorten.readthedocs.org/.
+
+Quickstart
+----------
+
+Create a `store` which automatically generates keys for your values. The
+key generation scheme depends upon the ``alphabet`` given.
+
+.. code:: python
+
+   from shorten import MemoryStore
+   
+   hexabet = '0123456789abcdef'
+   store = MemoryStore(alphabet=hexabet)
+
+   key, token = store.insert('aardvark')
+  
+   # '0'
+   key
+ 
+   for i in range(0, 255):
+      key, token = store.insert('aardvark')
+
+   # 'ff'
+   key
+
+
+Values can be deleted from the store by `revoking` them with the returned
+revokation `token`. The default token is the same as the returned key.
+
+.. code:: python
+
+   key, token = store.insert('bonobo')
+
+   # '1', since 'aardvark' has key '0'
+   key
+
+   del store[token]
+
+   # False
+   key in store
+
+
+The included stores are gevent-safe, meaning that values can be inserted from
+multiple greenlets without fear of duplicate keys.
+
+.. code:: python
+
+   import gevent
+   from shorten import MemoryStore, 
+
+   store = MemoryStore(alphabet=
+   
+ 
+
+
+Shuffling your alphabet produces a random-looking key every time, but the
+order can easily be reconstructed from frequency counting and [Benford's law].
+
+Never use short URLs to hide your data - use UUIDs or authentication instead.
 
 The basics
 ----------
