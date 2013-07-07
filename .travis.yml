@@ -5,5 +5,9 @@ python:
    - "3.2"
    - "3.3"
 
+services:
+   - memcache
+   - redis
+
 install: "pip install -r requirements.txt --use-mirrors"
 script: "nosetests tests"
