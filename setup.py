@@ -18,10 +18,9 @@ setup(
    name = 'shorten',
    packages = ['shorten'],
    version = __version__,
-   description = 'A Python library for generating short URLs.',
+   description = 'A library for generating and storing short keys.',
 
    requires = [
-      'redis',      
    ],
 
    author = 'Charlie Liban',
@@ -31,7 +30,7 @@ setup(
 
    url = 'https://github.com/tyrannosaur/shorten',
    download_url = 'https://github.com/tyrannosaur/shorten/zipball/master',
-   keywords = ['redis','internet','url'],
+   keywords = ['redis', 'memcached', 'internet', 'url', 'shortening'],
    classifiers = [
       'Programming Language :: Python',
       'License :: OSI Approved :: MIT License',

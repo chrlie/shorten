@@ -43,7 +43,7 @@ also required. Redis, memcache and gevent tests can be skipped by passing
 Documentation
 -------------
 
-Full documentation is available at http://shorten.readthedocs.org/.
+Full documentation is available at http://pythonhosted.org/shorten.
 
 Quickstart
 ----------
