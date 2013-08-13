@@ -12,5 +12,5 @@
 build/
 dist/
 
-# Nano crap?
+# Ignore vim undo files
 .*~
