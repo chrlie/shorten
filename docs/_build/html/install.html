@@ -39,9 +39,6 @@
           <a href="genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="user/intro.html" title="Introduction"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -61,14 +58,17 @@
 <p>Install with pip:</p>
 <div class="code sh highlight-python"><pre>$ pip install shorten</pre>
 </div>
+<p>Shorten uses <a class="reference external" href="https://github.com/andymccurdy/redis-py">redis-py</a> as its
+Redis client and it will be downloaded automatically. This dependency may
+be removed in a future version.</p>
 <p>If you want to run the tests, install the requirements in <tt class="docutils literal"><span class="pre">requirements.txt</span></tt>:</p>
 <div class="code sh highlight-python"><pre>$ virtualenv --no-site-packages .python &amp;&amp; source .python/bin/activate
 $ pip install -r requirements.txt</pre>
 </div>
-<p>A Redis server, memcache server and the <tt class="docutils literal"><span class="pre">memcached</span></tt> development libraries are
-also required. Redis, memcache and gevent tests can be skipped by passing
-<tt class="docutils literal"><span class="pre">redis</span></tt>, <tt class="docutils literal"><span class="pre">gevent</span></tt> or <tt class="docutils literal"><span class="pre">memcache</span></tt> to nose:</p>
-<div class="code sh highlight-python"><pre>$ nosetests tests -v -a !redis,!gevent,!memcache</pre>
+<p>A Redis server and Memcached server are required for testing. The
+<tt class="docutils literal"><span class="pre">memcached</span></tt> and <tt class="docutils literal"><span class="pre">libevent</span></tt> (for <cite>gevent</cite>) development libraries are
+also required. For Debian-based systems, install everything by:</p>
+<div class="code sh highlight-python"><pre>$ apt-get install python-dev libmemcached-dev libevent-dev redis memcached</pre>
 </div>
 </div>
 

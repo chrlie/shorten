@@ -39,9 +39,6 @@
           <a href="../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
-             >modules</a> |</li>
-        <li class="right" >
           <a href="examples.html" title="Examples"
              accesskey="N">next</a> |</li>
         <li class="right" >
@@ -134,13 +131,14 @@ data, while tokens are used to delete data. Tokens are generated from
 </tr>
 </tbody>
 </table>
-<p>All stores are available at the module level and do not depend on any 3rd-party
-Python libraries.</p>
+<p>All stores are available at the module level. The only required 3rd-party library is
+<a class="reference external" href="https://github.com/andymccurdy/redis-py">redis-py</a>, needed for <cite>WatchError</cite>. This
+dependency may be removed at a later date.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">MemoryStore</span><span class="p">,</span> <span class="n">MemcacheStore</span><span class="p">,</span> <span class="n">RedisStore</span>
 </pre></div>
 </div>
 <p>Redis stores require a Redis client (<a class="reference external" href="https://pypi.python.org/pypi/redis/">redis</a>
-is recommended) and the name of a key that the keygen will use as a counter.</p>
+is assumed) and the name of a key that the keygen will use as a counter.</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">redis</span>
 <span class="kn">from</span> <span class="nn">shorten</span> <span class="kn">import</span> <span class="n">RedisStore</span>
 
@@ -212,8 +210,8 @@ use a counter to increment keys, then convert that number to a string in
 an <cite>alphabet</cite>.</p>
 <div class="admonition-randomized-alphabets admonition">
 <p class="first admonition-title">Randomized Alphabets</p>
-<p>All the examples return keys that are clearly sequential, so may
-decide to shuffle your alphabet to produce keys that appear random.</p>
+<p>All the examples return keys that are clearly sequential and so you may
+decide to shuffle the alphabet to produce keys that appear random.</p>
 <p>Although they appear random, they&#8217;re not: the alphabet order can easily be
 reconstructed from frequency counting and
 <a class="reference external" href="https://en.wikipedia.org/wiki/Benford's_law">Benford&#8217;s law</a>,

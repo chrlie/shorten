@@ -44,15 +44,16 @@ store                           notes
 :class:`shorten.RedisStore`     requires a Redis server.
 ==============================  ========================
 
-All stores are available at the module level and do not depend on any 3rd-party
-Python libraries.
+All stores are available at the module level. The only required 3rd-party library is
+`redis-py <https://github.com/andymccurdy/redis-py>`_, needed for `WatchError`. This
+dependency may be removed at a later date.
 
 ::
 
    from shorten import MemoryStore, MemcacheStore, RedisStore
 
 Redis stores require a Redis client (`redis <https://pypi.python.org/pypi/redis/>`_
-is recommended) and the name of a key that the keygen will use as a counter.
+is assumed) and the name of a key that the keygen will use as a counter.
 
 ::
 
@@ -136,8 +137,8 @@ an `alphabet`.
 
 .. admonition:: Randomized Alphabets
 
-   All the examples return keys that are clearly sequential, so may
-   decide to shuffle your alphabet to produce keys that appear random.
+   All the examples return keys that are clearly sequential and so you may
+   decide to shuffle the alphabet to produce keys that appear random.
    
    Although they appear random, they're not: the alphabet order can easily be
    reconstructed from frequency counting and 

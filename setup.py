@@ -26,12 +26,12 @@ setup(
    ],
 
    author = 'Charlie Liban',
-   author_email = 'charlie@tyrannosaur.ca',
+   author_email = 'charlie@clib.ca',
    maintainer='Charlie Liban',
-   maintainer_email='charlie@tyrannosaur.ca',   
+   maintainer_email='charlie@clib.ca',   
 
-   url = 'https://github.com/tyrannosaur/shorten',
-   download_url = 'https://github.com/tyrannosaur/shorten/zipball/master',
+   url = 'https://github.com/clibc/shorten',
+   download_url = 'https://github.com/clibc/shorten/zipball/master',
    keywords = ['redis', 'memcached', 'internet', 'url', 'shortening'],
    classifiers = [
       'Programming Language :: Python',
